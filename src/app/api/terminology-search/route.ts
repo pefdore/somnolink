@@ -1,5 +1,7 @@
 // src/app/api/terminology-search/route.ts
 
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 
 interface ICDEntity {
