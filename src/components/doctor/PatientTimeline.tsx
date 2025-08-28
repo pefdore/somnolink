@@ -50,7 +50,6 @@ interface PatientTimelineProps {
       created_at: string;
     }>;
   };
-  doctorId: string;
 }
 
 const getEventIcon = (type: TimelineEvent['type']) => {
@@ -91,7 +90,7 @@ const getEventColor = (type: TimelineEvent['type']) => {
   }
 };
 
-export default function PatientTimeline({ patient, doctorId }: PatientTimelineProps) {
+export default function PatientTimeline({ patient }: PatientTimelineProps) {
   const generateTimelineEvents = (): TimelineEvent[] => {
     const events: TimelineEvent[] = [];
 

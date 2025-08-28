@@ -117,7 +117,7 @@ const renderSymptoms = (symptoms: Record<string, unknown>) => {
 
 const renderChecklist = (data: Record<string, boolean>, title: string, labels: Record<string, string>) => {
     const selectedItems = Object.entries(data)
-        .filter(([_, value]) => value)
+        .filter(([, value]) => value)
         .map(([key]) => labels[key] || key);
 
     if (selectedItems.length === 0) return null;

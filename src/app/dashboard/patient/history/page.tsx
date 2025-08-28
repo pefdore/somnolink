@@ -76,8 +76,9 @@ export default function PatientHistoryPage() {
                 surgical_history: { description: surgical.description || '', entries: Array.isArray(surgical.entries) ? surgical.entries : [] },
                 allergies: { description: allergies.description || '', entries: Array.isArray(allergies.entries) ? allergies.entries : [] },
             });
-        } catch (e: any) { 
-            toast.error("Une erreur inattendue est survenue.", { description: e.message }); 
+        } catch (e: unknown) {
+            const errorMessage = e instanceof Error ? e.message : 'Erreur inconnue';
+            toast.error("Une erreur inattendue est survenue.", { description: errorMessage });
         } finally {
             setIsLoading(false);
         }
@@ -91,8 +92,9 @@ export default function PatientHistoryPage() {
                     setUser(user);
                     await fetchHistory(user.id);
                 }
-            } catch (e: any) {
-                toast.error("Impossible de vérifier l'utilisateur.", { description: e.message });
+            } catch (e: unknown) {
+                const errorMessage = e instanceof Error ? e.message : 'Erreur inconnue';
+                toast.error("Impossible de vérifier l'utilisateur.", { description: errorMessage });
             } finally {
                 setIsLoading(false);
             }
@@ -113,9 +115,12 @@ export default function PatientHistoryPage() {
             try {
                 const response = await fetch(`/api/terminology-search?q=${searchTerm}`);
                 const data = await response.json();
-                const taggedData = data.map((d: any) => ({...d, isSurgicalSuggestion: d.code.startsWith('Z')}));
+                const taggedData = data.map((d: ApiSuggestion) => ({...d, isSurgicalSuggestion: d.code.startsWith('Z')}));
                 setSuggestions(taggedData);
-            } catch(e) { toast.error("La recherche a échoué.") }
+            } catch(e: unknown) {
+                const errorMessage = e instanceof Error ? e.message : 'Erreur inconnue';
+                toast.error("La recherche a échoué.", { description: errorMessage })
+            }
             finally { setIsSearching(false); }
         };
         searchTerminology();
@@ -171,7 +176,10 @@ export default function PatientHistoryPage() {
         toast.promise(saveAction(), {
             loading: 'Enregistrement...',
             success: 'Modifications enregistrées !',
-            error: (err: any) => `Erreur : ${err.message || 'Une erreur est survenue'}`,
+            error: (err: unknown) => {
+                const errorMessage = err instanceof Error ? err.message : 'Une erreur est survenue';
+                return `Erreur : ${errorMessage}`;
+            },
         });
     }, [formData, supabase, user]);
 

@@ -102,7 +102,7 @@ export default function PgvUploader({ patientId }: { patientId: string }) {
 
       <div>
         <button onClick={handleAnalyze} disabled={!uploadedDocumentId || isAnalyzing} className="w-full px-4 py-2 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 disabled:bg-gray-400">
-          {isAnalyzing ? "Analyse par l&apos;IA en cours..." : "2. Lancer l'analyse"}
+          {isAnalyzing ? "Analyse par l&apos;IA en cours..." : "2. Lancer l&apos;analyse"}
         </button>
         {analysisError && <p className="mt-2 text-sm text-red-600">{analysisError}</p>}
       </div>
@@ -110,9 +110,9 @@ export default function PgvUploader({ patientId }: { patientId: string }) {
       {/* Section pour afficher les résultats de l'analyse */}
       {analysisResult && (
         <div className="mt-6 p-4 border-t border-gray-200 bg-gray-50 rounded-lg space-y-4">
-            <h4 className="text-lg font-bold text-gray-900">Résultats de l'analyse</h4>
+            <h4 className="text-lg font-bold text-gray-900">Résultats de l&apos;analyse</h4>
             <div>
-                <label className="block text-sm font-medium text-gray-700">IAH (Indice d'Apnées-Hypopnées)</label>
+                <label className="block text-sm font-medium text-gray-700">IAH (Indice d&apos;Apnées-Hypopnées)</label>
                 <p className="mt-1 text-2xl font-bold text-blue-600">{analysisResult.iah}</p>
             </div>
             <div>

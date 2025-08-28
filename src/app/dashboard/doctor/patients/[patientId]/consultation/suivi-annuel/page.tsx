@@ -82,12 +82,12 @@ export default async function SuiviAnnuelPage({ params }: { params: { patientId:
 
       {/* --- TIMELINE DU DOSSIER AU MILIEU --- */}
       <div className="w-1/3 p-6 bg-gray-50 ml-80">
-        <PatientTimeline patient={patientWithNotes} doctorId={doctor.id} />
+        <PatientTimeline patient={patientWithNotes} />
       </div>
 
       {/* --- CONTENU DE CONSULTATION À DROITE --- */}
       <div className="flex-1 p-6 bg-white border-l border-gray-200">
-        <ConsultationTabs patientId={patientId} doctorId={doctor.id} consultationType="suivi-annuel" />
+        <ConsultationTabs consultationType="suivi-annuel" />
       </div>
     </div>
   );

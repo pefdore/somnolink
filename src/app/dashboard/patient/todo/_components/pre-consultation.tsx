@@ -65,7 +65,7 @@ const consultationReasonsList: string[] = ['Ronflements importants', 'Sensation 
 const medicalHistoryList: string[] = ['Hypertension artérielle', 'Maladie cardiaque', 'Accident vasculaire cérébral (AVC)', 'Diabète', 'Maladie respiratoire (asthme, BPCO)', 'Maladie neurologique', 'Dépression', 'Anxiété', 'Trouble bipolaire', 'Hypothyroïdie', 'Problèmes rénaux', 'Problèmes hépatiques', 'Anémie', 'Fibromyalgie ou douleurs chroniques'];
 const pastTreatmentsList: string[] = ["Appareil à Pression Positive Continue (PPC)", "Orthèse d&apos;Avancée Mandibulaire (OAM)", "Chirurgie", "Médicaments pour la somnolence"];
 
-const stepFields: string[][] = [
+const stepFields: (keyof FormValues)[][] = [
     ['selected_doctor', 'appointment_date', 'appointment_time'],
     [],
     [],
@@ -78,7 +78,7 @@ const stepFields: string[][] = [
     [],
 ];
 
-const SymptomRow = ({ control, namePrefix, label, subquestions }: { control: Control<unknown>, namePrefix: string, label: string, subquestions?: React.ReactNode }) => (
+const SymptomRow = ({ control, namePrefix, label, subquestions }: { control: Control<FormValues>, namePrefix: string, label: string, subquestions?: React.ReactNode }) => (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start border-t py-4"><div className="md:col-span-3"><p className="font-medium text-sm text-gray-800">{label}</p>{subquestions && <div className="text-xs text-gray-600 mt-2 space-y-2">{subquestions}</div>}</div><div className="md:col-span-6"><FormField control={control} name={`${namePrefix}.frequency` as any} render={({ field }) => (<FormItem><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex justify-around">{['Jamais', 'Rarement', 'Parfois', 'Souvent', 'Toujours'].map(val => (<FormItem key={val} className="flex flex-col items-center space-y-1"><FormControl><RadioGroupItem value={val} id={`${namePrefix}-${val}`} /></FormControl><Label htmlFor={`${namePrefix}-${val}`} className="text-xs">{val}</Label></FormItem>))}</RadioGroup></FormControl></FormItem>)}/></div><div className="md:col-span-3"><FormField control={control} name={`${namePrefix}.comments` as any} render={({ field }) => (<FormItem><FormControl><Input placeholder="Commentaires..." {...field} /></FormControl></FormItem>)}/></div></div>
 );
 
@@ -136,7 +136,7 @@ export function PreConsultation({ patientId, appointment, isDone }: { patientId:
   }, [supabase]);
 
   const handleNext = async () => {
-    const fieldsToValidate = stepFields[currentStep] as string[];
+    const fieldsToValidate = stepFields[currentStep];
     const isValid = await trigger(fieldsToValidate);
     if (isValid) {
       setCurrentStep(prev => prev + 1);
@@ -148,8 +148,7 @@ export function PreConsultation({ patientId, appointment, isDone }: { patientId:
     window.scrollTo(0, 0);
   };
   const handleLockEpworth = async () => {
-    const epworthFields = Object.keys(form.getValues().epworth || {}).map(k => `epworth.${k}`) as string[];
-    const isValid = await trigger(epworthFields);
+    const isValid = await trigger('epworth' as keyof FormValues);
     if (isValid) {
       setIsEpworthLocked(true);
     }
@@ -171,7 +170,7 @@ export function PreConsultation({ patientId, appointment, isDone }: { patientId:
             .from('patient-documents')
             .upload(filePath, referralFile);
         if (uploadError) {
-          console.error('Erreur d\'upload:', uploadError);
+          console.error('Erreur d&apos;upload:', uploadError);
           throw new Error(`Erreur d'upload: ${uploadError.message}`);
         }
         referralLetterPath = filePath;
@@ -255,7 +254,7 @@ export function PreConsultation({ patientId, appointment, isDone }: { patientId:
                 )}
 
                 {currentStep === 2 && (
-                    <fieldset className="p-6 border rounded-lg"><legend className="font-bold px-2 text-xl">Section 3 : Vos Symptômes</legend><SymptomRow control={control} namePrefix="symptoms.snoring" label="Ronflements" subquestions={<><FormField control={control} name="symptoms.snoring.details.partner_confirm" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={!!field.value} onCheckedChange={field.onChange}/></FormControl><Label>Mon partenaire confirme</Label></FormItem>)}/><FormField control={control} name="symptoms.snoring.details.is_loud" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={!!field.value} onCheckedChange={field.onChange}/></FormControl><Label>Sont-ils très forts/gênants ?</Label></FormItem>)}/></>}/><SymptomRow control={control} namePrefix="symptoms.breathing_pauses" label="Pauses respiratoires observées" subquestions={<FormField control={control} name="symptoms.breathing_pauses.details.partner_observed" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={!!field.value} onCheckedChange={field.onChange}/></FormControl><Label>Mon partenaire a observé</Label></FormItem>)}/>}/><SymptomRow control={control} namePrefix="symptoms.choking" label="Sensation d&apos;étouffement/suffocation nocturne" /><SymptomRow control={control} namePrefix="symptoms.headaches" label="Maux de tête matinaux" /><SymptomRow control={control} namePrefix="symptoms.nycturia" label="Réveils nocturnes pour uriner" subquestions={<FormField control={control} name="symptoms.nycturia.details.times_per_night" render={({ field }) => (<FormItem><FormControl><Input type="number" placeholder="Combien de fois/nuit ?" {...field} /></FormControl></FormItem>)}/>}/><SymptomRow control={control} namePrefix="symptoms.non_restorative_sleep" label="Sommeil non réparateur" /><SymptomRow control={control} namePrefix="symptoms.daytime_fatigue" label="Fatigue diurne" /><SymptomRow control={control} namePrefix="symptoms.concentration_memory" label="Difficultés de concentration / mémoire" /><SymptomRow control={control} namePrefix="symptoms.irritability_mood" label="Irritabilité / Humeur dépressive / Anxiété" /></fieldset>
+                    <fieldset className="p-6 border rounded-lg"><legend className="font-bold px-2 text-xl">Section 3 : Vos Symptômes</legend><SymptomRow control={control} namePrefix="symptoms.snoring" label="Ronflements" subquestions={<><FormField control={control} name="symptoms.snoring.details.partner_confirm" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={!!field.value} onCheckedChange={field.onChange}/></FormControl><Label>Mon partenaire confirme</Label></FormItem>)}/><FormField control={control} name="symptoms.snoring.details.is_loud" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={!!field.value} onCheckedChange={field.onChange}/></FormControl><Label>Sont-ils très forts/gênants ?</Label></FormItem>)}/></>}/><SymptomRow control={control} namePrefix="symptoms.breathing_pauses" label="Pauses respiratoires observées" subquestions={<FormField control={control} name="symptoms.breathing_pauses.details.partner_observed" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={!!field.value} onCheckedChange={field.onChange}/></FormControl><Label>Mon partenaire a observé</Label></FormItem>)}/>}/><SymptomRow control={control} namePrefix="symptoms.choking" label="Sensation d&apos;étouffement/suffocation nocturne" /><SymptomRow control={control} namePrefix="symptoms.headaches" label="Maux de tête matinaux" /><SymptomRow control={control} namePrefix="symptoms.nycturia" label="Réveils nocturnes pour uriner" subquestions={<FormField control={control} name="symptoms.nycturia.details.times_per_night" render={({ field }) => (<FormItem><FormControl><Input type="number" placeholder="Combien de fois/nuit ?" value={field.value as string || ''} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} /></FormControl></FormItem>)}/>}/><SymptomRow control={control} namePrefix="symptoms.non_restorative_sleep" label="Sommeil non réparateur" /><SymptomRow control={control} namePrefix="symptoms.daytime_fatigue" label="Fatigue diurne" /><SymptomRow control={control} namePrefix="symptoms.concentration_memory" label="Difficultés de concentration / mémoire" /><SymptomRow control={control} namePrefix="symptoms.irritability_mood" label="Irritabilité / Humeur dépressive / Anxiété" /></fieldset>
                 )}
 
                 {currentStep === 3 && (

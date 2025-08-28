@@ -439,7 +439,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             </div>
             
             <div>
-                <label className="block mb-1">Avez-vous consommé de l'alcool le soir avant l'enregistrement ?</label>
+                <label className="block mb-1">Avez-vous consommé de l&apos;alcool le soir avant l&apos;enregistrement ?</label>
                 <div className="flex space-x-4 mt-2">
                     <label className="inline-flex items-center">
                         <input type="radio" name="alcohol" value="true" onChange={handleChange} className="mr-2" />

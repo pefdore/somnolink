@@ -37,7 +37,6 @@ export default function ProfilePage() {
   const [postalCode, setPostalCode] = useState('');
 
   // States pour le changement de mot de passe
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMessage, setPasswordMessage] = useState('');
@@ -120,7 +119,6 @@ export default function ProfilePage() {
       setPasswordMessage(`Erreur lors du changement de mot de passe : ${error.message}`);
     } else {
       setPasswordMessage('Mot de passe changé avec succès !');
-      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     }

@@ -115,7 +115,7 @@ export default async function PatientFilePage({ params }: { params: { patientId:
         </div>
 
         {/* Timeline du dossier */}
-        <PatientTimeline patient={patientWithNotes} doctorId={doctor.id} />
+        <PatientTimeline patient={patientWithNotes} />
 
         {/* Éditeur de notes (conservé pour l'historique) */}
         <div className="mt-6">

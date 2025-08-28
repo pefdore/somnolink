@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User, Calendar, Shield, AlertTriangle, Pill, Plus } from 'lucide-react';
 
 interface Patient {
@@ -205,7 +205,7 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
     }
   };
 
-  const handleSearchCim = async (term: string): Promise<Array<{ code: string; label: string; system?: string }>> => {
+  const handleSearchCim = useCallback(async (term: string): Promise<Array<{ code: string; label: string; system?: string }>> => {
     if (term.length < 3) {
       return [];
     }
@@ -226,7 +226,7 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
         { code: 'J45', label: 'Asthme' }
       ].filter(item => item.label.toLowerCase().includes(term.toLowerCase()));
     }
-  };
+  }, []);
 
   const handleSelectCim = async (item: { code: string; label: string; system?: string }): Promise<void> => {
     try {
@@ -279,7 +279,7 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
           setError(null);
           return;
         }
-
+  
         setIsLoading(true);
         setError(null);
         
@@ -293,10 +293,10 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
           setIsLoading(false);
         }
       };
-
+  
       const debounceTimer = setTimeout(searchCim, 300);
       return () => clearTimeout(debounceTimer);
-    }, [searchTerm]);
+    }, [searchTerm, handleSearchCim]);
 
     if (!showMedicalSearch && !showSurgicalSearch) return null;
 

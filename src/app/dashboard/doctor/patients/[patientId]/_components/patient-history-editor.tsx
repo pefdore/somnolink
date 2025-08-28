@@ -29,7 +29,7 @@ type ApiSuggestion = Omit<StructuredEntry, 'definedBy' | 'note' | 'creatorName' 
 export default function PatientHistoryEditor({ patientId, viewMode = 'full' }: { patientId: string, viewMode?: 'condensed' | 'full' }) {
     // --- États (inchangés) ---
     const supabase = createClient();
-    const [doctorName, setDoctorName] = useState<string>(''); // setDoctorName est conservé pour usage futur
+    const [doctorName] = useState<string>(''); // doctorName est conservé pour usage futur
     const [formData, setFormData] = useState<HistoryData>({
         medical_history: { description: '', entries: [] },
         surgical_history: { description: '', entries: [] },
@@ -145,23 +145,6 @@ export default function PatientHistoryEditor({ patientId, viewMode = 'full' }: {
         });
     };
     
-    // La sauvegarde est maintenant gérée par un useEffect pour un enregistrement automatique
-    useEffect(() => {
-        if (isInitialMount.current) {
-            isInitialMount.current = false;
-            return;
-        }
-
-        const handler = setTimeout(() => {
-            handleSave();
-        }, 1500); // Délai de 1.5s après la dernière modification
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [formData]); // Se déclenche à chaque changement du formulaire
-
-
     const handleSave = useCallback(async () => {
         if (!patientId || !formData) return;
         
@@ -178,6 +161,22 @@ export default function PatientHistoryEditor({ patientId, viewMode = 'full' }: {
              // console.log("Sauvegarde automatique réussie.");
         }
     }, [formData, supabase, patientId]);
+
+    // La sauvegarde est maintenant gérée par un useEffect pour un enregistrement automatique
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+
+        const handler = setTimeout(() => {
+            handleSave();
+        }, 1500); // Délai de 1.5s après la dernière modification
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [formData, handleSave]); // Se déclenche à chaque changement du formulaire
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {

@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { FileText, ClipboardList } from 'lucide-react';
 
 interface ConsultationTabsProps {
-  patientId: string;
-  doctorId: string;
   consultationType: string;
 }
 
@@ -14,7 +12,7 @@ const tabs = [
   { id: 'questionnaire', label: 'Questionnaire', icon: ClipboardList },
 ];
 
-export default function ConsultationTabs({ patientId, doctorId, consultationType }: ConsultationTabsProps) {
+export default function ConsultationTabs({ consultationType }: ConsultationTabsProps) {
   const [activeTab, setActiveTab] = useState('consultation-note');
 
   return (
