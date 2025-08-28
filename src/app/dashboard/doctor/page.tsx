@@ -33,7 +33,7 @@ export default async function DoctorDashboardPage() {
     .select('id', { count: 'exact' })
     .eq('doctor_id', doctor.id);
 
-  // 2. Rendez-vous aujourd'hui
+  // 2. Rendez-vous aujourd&apos;hui
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const todayEnd = new Date();
@@ -114,14 +114,14 @@ export default async function DoctorDashboardPage() {
           </div>
         </div>
 
-        {/* Rendez-vous aujourd'hui */}
+        {/* Rendez-vous aujourd&apos;hui */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg">
               <Calendar className="h-6 w-6 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">RDV aujourd'hui</p>
+              <p className="text-sm font-medium text-gray-600">RDV aujourd&apos;hui</p>
               <p className="text-2xl font-bold text-gray-900">{appointmentsToday?.length || 0}</p>
             </div>
           </div>
@@ -165,7 +165,7 @@ export default async function DoctorDashboardPage() {
           
           {appointmentsToday && appointmentsToday.length > 0 ? (
             <div className="space-y-3">
-              {appointmentsToday.map((appt: any) => {
+              {appointmentsToday.map((appt) => {
                 const appointmentTime = new Date(appt.appointment_date).toLocaleTimeString('fr-FR', {
                   hour: '2-digit',
                   minute: '2-digit'
@@ -196,7 +196,7 @@ export default async function DoctorDashboardPage() {
               })}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">Aucun rendez-vous aujourd'hui</p>
+            <p className="text-gray-500 text-center py-8">Aucun rendez-vous aujourd&apos;hui</p>
           )}
         </div>
 
@@ -209,7 +209,7 @@ export default async function DoctorDashboardPage() {
           
           {upcomingAppointments && upcomingAppointments.length > 0 ? (
             <div className="space-y-3">
-              {upcomingAppointments.map((appt: any) => {
+              {upcomingAppointments.map((appt) => {
                 const appointmentDate = new Date(appt.appointment_date);
                 const dateStr = appointmentDate.toLocaleDateString('fr-FR', {
                   weekday: 'short',
@@ -261,7 +261,7 @@ export default async function DoctorDashboardPage() {
           
           {recentQuestionnaires && recentQuestionnaires.length > 0 ? (
             <div className="space-y-3">
-              {recentQuestionnaires.map((q: any) => (
+              {recentQuestionnaires.map((q) => (
                 q.patients && (
                   <Link
                     key={q.patients.id + q.type + q.submitted_at}
@@ -302,7 +302,7 @@ export default async function DoctorDashboardPage() {
           
           {patientsToFollowUp.length > 0 ? (
             <div className="space-y-3">
-              {patientsToFollowUp.map((patient: any) => (
+              {patientsToFollowUp.map((patient) => (
                 <div
                   key={patient.id}
                   className="flex items-center justify-between p-3 rounded-lg border border-red-100 bg-red-50"

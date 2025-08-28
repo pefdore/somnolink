@@ -102,7 +102,7 @@ export default function PgvUploader({ patientId }: { patientId: string }) {
 
       <div>
         <button onClick={handleAnalyze} disabled={!uploadedDocumentId || isAnalyzing} className="w-full px-4 py-2 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 disabled:bg-gray-400">
-          {isAnalyzing ? "Analyse par l'IA en cours..." : "2. Lancer l'analyse"}
+          {isAnalyzing ? "Analyse par l&apos;IA en cours..." : "2. Lancer l'analyse"}
         </button>
         {analysisError && <p className="mt-2 text-sm text-red-600">{analysisError}</p>}
       </div>
@@ -116,7 +116,7 @@ export default function PgvUploader({ patientId }: { patientId: string }) {
                 <p className="mt-1 text-2xl font-bold text-blue-600">{analysisResult.iah}</p>
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-700">Conclusion suggérée par l'IA</label>
+                <label className="block text-sm font-medium text-gray-700">Conclusion suggérée par l&apos;IA</label>
                 <textarea
                     readOnly
                     value={analysisResult.conclusion}

@@ -28,7 +28,7 @@ interface Patient {
   attending_doctor_first_name: string | null;
   attending_doctor_last_name: string | null;
   appointments?: Array<{
-    questionnaires?: Array<any>;
+    questionnaires?: Array<unknown>;
   }>;
   documents?: Array<{
     type?: string;
@@ -38,14 +38,26 @@ interface Patient {
     type?: string;
     name?: string;
   }>;
-  notes?: Array<any>;
+  notes?: Array<unknown>;
   medical_history?: {
     description: string;
-    entries: Array<any>;
+    entries: Array<{
+      code?: string;
+      system?: string;
+      label?: string;
+      type?: string;
+      note?: string;
+    }>;
   };
   surgical_history?: {
     description: string;
-    entries: Array<any>;
+    entries: Array<{
+      code?: string;
+      system?: string;
+      label?: string;
+      type?: string;
+      note?: string;
+    }>;
   };
   // Pour le statut sommeil, nous allons le déterminer dynamiquement
 }
@@ -67,26 +79,26 @@ const calculateAge = (birthDate: string | null): number | string => {
   return age;
 };
 
-const getSleepStatus = (patient: any) => {
+const getSleepStatus = (patient: Patient) => {
   // Logique avancée pour déterminer le statut sommeil basée sur les données réelles
-  const hasQuestionnaires = patient.appointments?.some((appt: any) =>
-    appt.questionnaires?.length > 0
+  const hasQuestionnaires = patient.appointments?.some((appt) =>
+    (appt.questionnaires?.length ?? 0) > 0
   );
   
-  const hasPgvDocuments = patient.documents?.some((doc: any) =>
+  const hasPgvDocuments = patient.documents?.some((doc) =>
     doc.type === 'pgv' || doc.name?.toLowerCase().includes('pgv')
   );
   
-  const hasPrescriptions = patient.prescriptions?.length > 0;
+  const hasPrescriptions = (patient.prescriptions?.length ?? 0) > 0;
   
   // Logique de détermination du statut
   if (hasPgvDocuments) {
     // Vérifier si le patient a une prescription PPC ou OAM
-    const hasCpapPrescription = patient.prescriptions?.some((pres: any) =>
+    const hasCpapPrescription = patient.prescriptions?.some((pres) =>
       pres.type === 'cpap' || pres.name?.toLowerCase().includes('ppc')
     );
     
-    const hasOamPrescription = patient.prescriptions?.some((pres: any) =>
+    const hasOamPrescription = patient.prescriptions?.some((pres) =>
       pres.type === 'oam' || pres.name?.toLowerCase().includes('oam')
     );
     
@@ -105,7 +117,7 @@ const getSleepStatus = (patient: any) => {
   
   if (hasPrescriptions) {
     // Vérifier le type de prescription
-    const hasSleepPrescription = patient.prescriptions?.some((pres: any) =>
+    const hasSleepPrescription = patient.prescriptions?.some((pres) =>
       pres.type?.includes('sleep') || pres.name?.toLowerCase().includes('sommeil')
     );
     
@@ -123,23 +135,23 @@ const formatName = (civility: string | null, firstName: string | null, lastName:
 };
 
 // Fonction pour afficher les antécédents médicaux
-const renderMedicalHistory = (medicalHistory: any) => {
+const renderMedicalHistory = (medicalHistory: Patient['medical_history']) => {
   if (!medicalHistory || !medicalHistory.entries || medicalHistory.entries.length === 0) {
     return <p>• Aucun antécédent médical renseigné</p>;
   }
 
-  return medicalHistory.entries.slice(0, 3).map((entry: any, index: number) => (
+  return medicalHistory.entries.slice(0, 3).map((entry, index: number) => (
     <p key={index}>• {entry.label || 'Antécédent médical'}</p>
   ));
 };
 
 // Fonction pour afficher les antécédents chirurgicaux
-const renderSurgicalHistory = (surgicalHistory: any) => {
+const renderSurgicalHistory = (surgicalHistory: Patient['surgical_history']) => {
   if (!surgicalHistory || !surgicalHistory.entries || surgicalHistory.entries.length === 0) {
     return <p>• Aucun antécédent chirurgical renseigné</p>;
   }
 
-  return surgicalHistory.entries.slice(0, 3).map((entry: any, index: number) => (
+  return surgicalHistory.entries.slice(0, 3).map((entry, index: number) => (
     <p key={index}>• {entry.label || 'Antécédent chirurgical'}</p>
   ));
 };

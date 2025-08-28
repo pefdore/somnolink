@@ -216,7 +216,7 @@ export default function DoctorHeaderBar({ doctor }: DoctorHeaderBarProps) {
             Paramètres du compte
           </button>
           <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50">
-            Préférences d'affichage
+            Préférences d&apos;affichage
           </button>
           <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50">
             Aide et support

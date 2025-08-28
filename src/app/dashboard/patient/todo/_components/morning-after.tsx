@@ -10,7 +10,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
   const router = useRouter();
   const supabase = createClient();
   
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, string | boolean | number>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -54,7 +54,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
     return (
       <div className="p-6 bg-green-100 text-green-800 rounded-lg">
         <h2 className="font-bold text-lg">Étape terminée !</h2>
-        <p>Merci d'avoir rempli ce questionnaire.</p>
+        <p>Merci d&apos;avoir rempli ce questionnaire.</p>
       </div>
     );
   }
@@ -67,7 +67,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
       <form onSubmit={handleSubmit} className="mt-6 space-y-8">
         {/* Section 1: Votre nuit de sommeil */}
         <fieldset className="space-y-6">
-            <legend className="text-lg font-semibold">1. Votre nuit de sommeil pendant l'enregistrement</legend>
+            <legend className="text-lg font-semibold">1. Votre nuit de sommeil pendant l&apos;enregistrement</legend>
             
             <div>
                 <label className="block mb-1">À quelle heure approximative vous êtes-vous couché ?</label>
@@ -128,7 +128,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             <div>
                 <label className="block mb-1">Comment cette nuit se compare-t-elle à une nuit habituelle ?</label>
                 <div className="flex flex-col space-y-2 mt-2">
-                    {["Mieux qu'une nuit habituelle", "Similaire à une nuit habituelle", "Moins bien qu'une nuit habituelle"].map((option) => (
+                    {["Mieux qu&apos;une nuit habituelle", "Similaire à une nuit habituelle", "Moins bien qu&apos;une nuit habituelle"].map((option) => (
                         <label key={option} className="inline-flex items-center">
                             <input type="radio" name="comparison" value={option} onChange={handleChange} className="mr-2" />
                             {option}
@@ -160,7 +160,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             </div>
             
             <div>
-                <label className="block mb-1">Si oui, quelle était l'intensité ?</label>
+                <label className="block mb-1">Si oui, quelle était l&apos;intensité ?</label>
                 <div className="flex space-x-4 mt-2">
                     {["Faible", "Modérée", "Sévère"].map((option) => (
                         <label key={option} className="inline-flex items-center">
@@ -172,7 +172,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             </div>
             
             <div>
-                <label className="block mb-1">Avez-vous eu l'impression d'arrêter de respirer ou de vous étouffer ?</label>
+                <label className="block mb-1">Avez-vous eu l&apos;impression d&apos;arrêter de respirer ou de vous étouffer ?</label>
                 <div className="flex space-x-4 mt-2">
                     {["Oui", "Non", "Je ne sais pas"].map((option) => (
                         <label key={option} className="inline-flex items-center">
@@ -189,7 +189,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             </div>
             
             <div>
-                <label className="block mb-1">Vous êtes-vous réveillé avec une sensation de suffocation ou d'essoufflement ?</label>
+                <label className="block mb-1">Vous êtes-vous réveillé avec une sensation de suffocation ou d&apos;essoufflement ?</label>
                 <div className="flex space-x-4 mt-2">
                     <label className="inline-flex items-center">
                         <input type="radio" name="wokeChoking" value="true" onChange={handleChange} className="mr-2" />
@@ -256,7 +256,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             </div>
             
             <div>
-                <label className="block mb-1">Si vous avez eu mal à la tête, quelle était l'intensité ?</label>
+                <label className="block mb-1">Si vous avez eu mal à la tête, quelle était l&apos;intensité ?</label>
                 <div className="flex space-x-4 mt-2">
                     {["Faible", "Modérée", "Sévère"].map((option) => (
                         <label key={option} className="inline-flex items-center">
@@ -294,7 +294,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
                 <div className="flex flex-col space-y-2 mt-2">
                     {[
                         "PPC (Pression Positive Continue)", 
-                        "Orthèse d'Avancée Mandibulaire (OAM)", 
+                        "Orthèse d&apos;Avancée Mandibulaire (OAM)", 
                         "Aucun"
                     ].map((option) => (
                         <label key={option} className="inline-flex items-center">
@@ -323,7 +323,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             </div>
             
             <div>
-                <label className="block mb-1">Avez-vous utilisé l'appareil pendant toute la nuit ?</label>
+                <label className="block mb-1">Avez-vous utilisé l&apos;appareil pendant toute la nuit ?</label>
                 <div className="flex space-x-4 mt-2">
                     <label className="inline-flex items-center">
                         <input type="radio" name="usedAllNight" value="true" onChange={handleChange} className="mr-2" />
@@ -362,7 +362,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
                 </div>
                 
                 <div>
-                    <label className="block mb-1">Raison de l'arrêt :</label>
+                    <label className="block mb-1">Raison de l&apos;arrêt :</label>
                     <input 
                         type="text" 
                         name="stopReason" 
@@ -386,7 +386,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             </div>
             
             <div>
-                <label className="block mb-1">Si vous avez utilisé une PPC, fuites d'air importantes ?</label>
+                <label className="block mb-1">Si vous avez utilisé une PPC, fuites d&apos;air importantes ?</label>
                 <div className="flex space-x-4 mt-2">
                     {["Oui", "Non", "Je ne sais pas"].map((option) => (
                         <label key={option} className="inline-flex items-center">
@@ -398,7 +398,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             </div>
             
             <div>
-                <label className="block mb-1">Si vous avez utilisé une OAM, confort de l'orthèse :</label>
+                <label className="block mb-1">Si vous avez utilisé une OAM, confort de l&apos;orthèse :</label>
                 <div className="flex space-x-4 mt-2 flex-wrap">
                     {["Très confortable", "Confortable", "Acceptable", "Gênant", "Très gênant"].map((option) => (
                         <label key={option} className="inline-flex items-center mr-4 mb-2">
@@ -410,7 +410,7 @@ export function MorningAfter({ patientId, appointmentId, isDone }: { patientId: 
             </div>
             
             <div>
-                <label className="block mb-1">Problèmes ou inconfort rencontrés avec l'appareil :</label>
+                <label className="block mb-1">Problèmes ou inconfort rencontrés avec l&apos;appareil :</label>
                 <textarea name="deviceProblems" onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 p-2 border" placeholder="Masque, tuyau, pression, bruit..." />
             </div>
         </fieldset>

@@ -58,7 +58,7 @@ const renderEpworthScale = (epworth: Record<string, string>) => {
 
     return (
         <div className="space-y-3">
-            <h4 className="font-semibold text-lg text-blue-800 border-b pb-2">Échelle de Somnolence d'Epworth</h4>
+            <h4 className="font-semibold text-lg text-blue-800 border-b pb-2">Échelle de Somnolence d&apos;Epworth</h4>
             {Object.entries(epworth).map(([key, score]) => (
                 <div key={key} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border">
                     <span className="text-gray-700">{epworthQuestions[key] || key}</span>

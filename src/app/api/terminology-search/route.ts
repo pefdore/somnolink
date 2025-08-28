@@ -2,6 +2,17 @@
 
 import { NextResponse } from 'next/server';
 
+interface ICDEntity {
+  title?: string;
+  label?: string;
+  name?: string;
+  theCode?: string;
+  code?: string;
+  id?: string;
+  // Autres propriétés possibles
+  [key: string]: unknown;
+}
+
 const clientId = process.env.ICD_API_CLIENT_ID;
 const clientSecret = process.env.ICD_API_CLIENT_SECRET;
 const tokenUrl = process.env.ICD_API_TOKEN_URL;
@@ -86,7 +97,7 @@ export async function GET(request: Request) {
         console.log("---------------------------------");
 
         // Tentative d'extraction des résultats basée sur la structure réelle
-        let entities: any[] = [];
+        let entities: ICDEntity[] = [];
         
         // Essayer différentes structures possibles
         if (data.destinationEntities) {
@@ -105,8 +116,8 @@ export async function GET(request: Request) {
         }
 
         const results = entities
-            .filter((entity: any) => entity && (entity.title || entity.label || entity.name))
-            .map((entity: any) => ({
+            .filter((entity: ICDEntity) => entity && (entity.title || entity.label || entity.name))
+            .map((entity: ICDEntity) => ({
                 code: entity.theCode || entity.code || entity.id?.split('/').pop() || 'N/A',
                 label: (entity.title || entity.label || entity.name || '').replace(/<[^>]*>?/gm, ''),
                 system: 'CIM-11',
@@ -114,8 +125,9 @@ export async function GET(request: Request) {
 
         return NextResponse.json(results);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[TERMINOLOGY_SEARCH_ERROR]', error);
-        return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
+        const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+        return new NextResponse(`Internal Server Error: ${errorMessage}`, { status: 500 });
     }
 }
