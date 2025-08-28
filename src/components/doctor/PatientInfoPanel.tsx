@@ -331,7 +331,7 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
             
             {!isLoading && searchTerm.length >= 3 && searchResults.length === 0 && !error && (
               <div className="text-gray-500 text-sm p-2 text-center">
-                Aucun résultat trouvé pour "{searchTerm}"
+                Aucun résultat trouvé pour &quot;{searchTerm}&quot;
               </div>
             )}
             

@@ -49,7 +49,7 @@ export default function ProfilePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('patients')
           .select('first_name, last_name, phone_number, attending_doctor_name, email, date_of_birth, address, city, postal_code')
           .eq('user_id', user.id)
