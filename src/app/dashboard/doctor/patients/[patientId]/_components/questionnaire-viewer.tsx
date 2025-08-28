@@ -1,5 +1,7 @@
 "use client";
 
+import { ReactNode } from 'react';
+
 type Questionnaire = {
     id: string;
     type: string;
@@ -29,7 +31,7 @@ const formatValue = (value: unknown): string => {
     return String(value);
 };
 
-const renderSection = (title: string, data: Record<string, unknown>, mapper?: Record<string, string>) => (
+const renderSection = (title: string, data: Record<string, unknown>, mapper?: Record<string, string>): JSX.Element => (
     <div className="space-y-4">
         <h4 className="font-semibold text-lg text-blue-800 border-b pb-2">{title}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -50,7 +52,7 @@ const renderSection = (title: string, data: Record<string, unknown>, mapper?: Re
     </div>
 );
 
-const renderEpworthScale = (epworth: Record<string, string>) => {
+const renderEpworthScale = (epworth: Record<string, string>): JSX.Element => {
     const epworthQuestions: Record<string, string> = {
         'reading': 'Assis en train de lire',
         'tv': 'En regardant la télévision',
@@ -81,7 +83,7 @@ const renderEpworthScale = (epworth: Record<string, string>) => {
     );
 };
 
-const renderSymptoms = (symptoms: Record<string, SymptomData>) => {
+const renderSymptoms = (symptoms: Record<string, SymptomData>): JSX.Element => {
     const symptomLabels: Record<string, string> = {
         'snoring': 'Ronflements',
         'breathing_pauses': 'Pauses respiratoires observées',
@@ -121,7 +123,7 @@ const renderSymptoms = (symptoms: Record<string, SymptomData>) => {
     );
 };
 
-const renderChecklist = (data: Record<string, boolean>, title: string, labels: Record<string, string>) => {
+const renderChecklist = (data: Record<string, boolean>, title: string, labels: Record<string, string>): JSX.Element | null => {
     const selectedItems = Object.entries(data)
         .filter(([, value]) => value)
         .map(([key]) => labels[key] || key);
@@ -168,13 +170,13 @@ export default function QuestionnaireViewer({ questionnaires }: { questionnaires
                                     minute: '2-digit'
                                 })}
                             </p>
-                            {answers.epworth_total && (
+                            {(answers.epworth_total as number) !== undefined && (answers.epworth_total as number) > 0 && (
                                 <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${
-                                    answers.epworth_total > 10 
-                                        ? 'bg-red-100 text-red-800' 
+                                    (answers.epworth_total as number) > 10
+                                        ? 'bg-red-100 text-red-800'
                                         : 'bg-green-100 text-green-800'
                                 }`}>
-                                    Score Epworth: {answers.epworth_total}
+                                    Score Epworth: {answers.epworth_total as number}
                                 </span>
                             )}
                         </div>
@@ -185,26 +187,26 @@ export default function QuestionnaireViewer({ questionnaires }: { questionnaires
                                 height: answers.height ? `${answers.height} cm` : null,
                                 weight: answers.weight ? `${answers.weight} kg` : null,
                                 neck_circumference: answers.neck_circumference ? `${answers.neck_circumference} cm` : null,
-                                profession: answers.profession,
-                                family_situation: answers.family_situation === 'seul' ? 'Seul(e)' : 
-                                               answers.family_situation === 'en_couple' ? 'En couple' : 
-                                               answers.family_situation
-                            })}
+                                profession: answers.profession as string,
+                                family_situation: answers.family_situation === 'seul' ? 'Seul(e)' :
+                                               answers.family_situation === 'en_couple' ? 'En couple' :
+                                               answers.family_situation as string
+                            }) as ReactNode}
 
                             {/* Rendez-vous */}
-                            {answers.appointment_date && answers.appointment_time && (
+                            {answers.appointment_date != null && answers.appointment_time != null ? (
                                 renderSection('Rendez-vous', {
-                                    date: new Date(`${answers.appointment_date}T${answers.appointment_time}`).toLocaleDateString('fr-FR'),
-                                    heure: answers.appointment_time
+                                    date: new Date(`${answers.appointment_date as string}T${answers.appointment_time as string}`).toLocaleDateString('fr-FR'),
+                                    heure: answers.appointment_time as string
                                 })
-                            )}
+                            ) : null}
 
                             {/* Échelle Epworth */}
-                            {answers.epworth && renderEpworthScale(answers.epworth)}
+                            {answers.epworth ? renderEpworthScale(answers.epworth as Record<string, string>) : null}
 
                             {/* Motifs de consultation */}
-                            {answers.consultation_reasons && renderChecklist(
-                                answers.consultation_reasons,
+                            {answers.consultation_reasons != null ? renderChecklist(
+                                answers.consultation_reasons as Record<string, boolean>,
                                 'Motifs de Consultation',
                                 {
                                     'Ronflements importants': 'Ronflements importants',
@@ -218,13 +220,13 @@ export default function QuestionnaireViewer({ questionnaires }: { questionnaires
                                     'Difficultés de concentration / mémoire': 'Difficultés de concentration/mémoire',
                                     'Irritabilité / changements d\'humeur': 'Irritabilité/changements d\'humeur'
                                 }
-                            )}
+                            ) : null}
 
                             {/* Symptômes */}
-                            {answers.symptoms && renderSymptoms(answers.symptoms)}
+                            {answers.symptoms ? renderSymptoms(answers.symptoms as Record<string, SymptomData>) : null}
 
                             {/* Habitudes de sommeil */}
-                            {answers.sleep_habits && renderSection('Habitudes de Sommeil', answers.sleep_habits, {
+                            {answers.sleep_habits != null ? renderSection('Habitudes de Sommeil', answers.sleep_habits as Record<string, unknown>, {
                                 weekday_bedtime: 'Coucher en semaine',
                                 weekday_waketime: 'Lever en semaine',
                                 weekday_hours: 'Heures de sommeil (semaine)',
@@ -234,11 +236,11 @@ export default function QuestionnaireViewer({ questionnaires }: { questionnaires
                                 naps: 'Fait des siestes',
                                 insomnia: 'Souffre d\'insomnie',
                                 shift_work: 'Travail en horaires décalés'
-                            })}
+                            }) : null}
 
                             {/* Antécédents médicaux */}
-                            {answers.medical_history && renderChecklist(
-                                answers.medical_history,
+                            {answers.medical_history != null ? renderChecklist(
+                                answers.medical_history as Record<string, boolean>,
                                 'Antécédents Médicaux',
                                 {
                                     'Hypertension artérielle': 'Hypertension artérielle',
@@ -256,47 +258,47 @@ export default function QuestionnaireViewer({ questionnaires }: { questionnaires
                                     'Anémie': 'Anémie',
                                     'Fibromyalgie ou douleurs chroniques': 'Fibromyalgie/douleurs chroniques'
                                 }
-                            )}
+                            ) : null}
 
                             {/* Traitements actuels */}
-                            {answers.current_treatments && (
+                            {answers.current_treatments != null ? (
                                 renderSection('Traitements Actuels', {
-                                    traitements: answers.current_treatments
+                                    traitements: answers.current_treatments as string
                                 })
-                            )}
+                            ) : null}
 
                             {/* Habitudes de vie */}
-                            {answers.life_habits && renderSection('Habitudes de Vie', answers.life_habits, {
+                            {answers.life_habits != null ? renderSection('Habitudes de Vie', answers.life_habits as Record<string, unknown>, {
                                 smoking_status: 'Tabagisme',
                                 smoking_details: 'Détails tabagisme',
                                 alcohol_status: 'Consommation d\'alcool',
                                 alcohol_details: 'Détails consommation alcool'
-                            })}
+                            }) : null}
 
                             {/* Conduite automobile */}
-                            {answers.driving_info && renderSection('Conduite Automobile', answers.driving_info, {
+                            {answers.driving_info != null ? renderSection('Conduite Automobile', answers.driving_info as Record<string, unknown>, {
                                 has_license: 'Permis de conduire',
                                 license_type: 'Type de permis',
                                 sleepy_while_driving: 'Somnolence au volant',
                                 accident_related_to_sleepiness: 'Accident lié à la somnolence'
-                            })}
+                            }) : null}
 
                             {/* Commentaires libres */}
-                            {answers.free_comments && (
+                            {answers.free_comments != null ? (
                                 renderSection('Commentaires Libres', {
-                                    commentaires: answers.free_comments
+                                    commentaires: answers.free_comments as string
                                 })
-                            )}
+                            ) : null}
 
                             {/* Consentement */}
-                            {answers.consent_signature && (
+                            {answers.consent_signature != null ? (
                                 <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                                     <h4 className="font-semibold text-green-800">Consentement Signé</h4>
                                     <p className="text-green-700 mt-1">
                                         Le patient a confirmé avoir lu et compris les informations sur les risques et obligations légales.
                                     </p>
                                 </div>
-                            )}
+                            ) : null}
                         </div>
                     </div>
                 );

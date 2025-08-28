@@ -62,7 +62,7 @@ export default async function TodoPage({ searchParams }: { searchParams: { tab: 
       <div className="mt-8 border-b border-gray-200">
         <nav className="-mb-px flex space-x-8" aria-label="Tabs">
           <TabLink name="pre-consultation" label="Pré-consultation" enabled={true} />
-          <TabLink name="morning-after" label="Au réveil" enabled={canDoMorningAfter} />
+          <TabLink name="morning-after" label="Au réveil" enabled={canDoMorningAfter ?? false} />
           {/* ... autres onglets ... */}
         </nav>
       </div>
