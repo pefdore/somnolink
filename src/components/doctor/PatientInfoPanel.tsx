@@ -296,7 +296,7 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
   
       const debounceTimer = setTimeout(searchCim, 300);
       return () => clearTimeout(debounceTimer);
-    }, [searchTerm, handleSearchCim]);
+    }, [searchTerm]); // Removed handleSearchCim from dependencies as it's stable
 
     if (!showMedicalSearch && !showSurgicalSearch) return null;
 

@@ -7,6 +7,12 @@ type Questionnaire = {
     answers: Record<string, unknown>;
 };
 
+interface SymptomData {
+    frequency?: string;
+    comments?: string;
+    details?: Record<string, unknown>;
+}
+
 const questionnaireTitles: Record<string, string> = {
     'PRE_CONSULTATION_SLEEP_FULL': 'Questionnaire de Pré-consultation Sommeil Complet',
     'MORNING_AFTER': 'Questionnaire "Au Réveil"',
@@ -75,7 +81,7 @@ const renderEpworthScale = (epworth: Record<string, string>) => {
     );
 };
 
-const renderSymptoms = (symptoms: Record<string, unknown>) => {
+const renderSymptoms = (symptoms: Record<string, SymptomData>) => {
     const symptomLabels: Record<string, string> = {
         'snoring': 'Ronflements',
         'breathing_pauses': 'Pauses respiratoires observées',
@@ -91,7 +97,7 @@ const renderSymptoms = (symptoms: Record<string, unknown>) => {
     return (
         <div className="space-y-4">
             <h4 className="font-semibold text-lg text-blue-800 border-b pb-2">Symptômes</h4>
-            {Object.entries(symptoms).map(([key, symptomData]) => (
+            {Object.entries(symptoms).map(([key, symptomData]: [string, SymptomData]) => (
                 <div key={key} className="bg-gray-50 p-4 rounded-lg border">
                     <h5 className="font-medium text-gray-800">{symptomLabels[key] || key}</h5>
                     {symptomData.frequency && (

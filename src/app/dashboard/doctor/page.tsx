@@ -171,10 +171,10 @@ export default async function DoctorDashboardPage() {
                   minute: '2-digit'
                 });
                 
-                return appt.patients ? (
+                return appt.patients && appt.patients.length > 0 ? (
                   <Link
                     key={appt.id}
-                    href={`/dashboard/doctor/patients/${appt.patients.id}`}
+                    href={`/dashboard/doctor/patients/${appt.patients[0].id}`}
                     className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-blue-50 transition-colors"
                   >
                     <div className="flex items-center">
@@ -183,7 +183,7 @@ export default async function DoctorDashboardPage() {
                       </div>
                       <div className="ml-3">
                         <p className="text-sm font-medium text-gray-900">
-                          {appt.patients.first_name} {appt.patients.last_name}
+                          {appt.patients[0].first_name} {appt.patients[0].last_name}
                         </p>
                         <p className="text-xs text-gray-500">{appointmentTime}</p>
                       </div>
@@ -221,10 +221,10 @@ export default async function DoctorDashboardPage() {
                   minute: '2-digit'
                 });
                 
-                return appt.patients ? (
+                return appt.patients && appt.patients.length > 0 ? (
                   <Link
                     key={appt.id}
-                    href={`/dashboard/doctor/patients/${appt.patients.id}`}
+                    href={`/dashboard/doctor/patients/${appt.patients[0].id}`}
                     className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-green-50 transition-colors"
                   >
                     <div className="flex items-center">
@@ -233,7 +233,7 @@ export default async function DoctorDashboardPage() {
                       </div>
                       <div className="ml-3">
                         <p className="text-sm font-medium text-gray-900">
-                          {appt.patients.first_name} {appt.patients.last_name}
+                          {appt.patients[0].first_name} {appt.patients[0].last_name}
                         </p>
                         <p className="text-xs text-gray-500">
                           {dateStr} à {timeStr}
@@ -262,10 +262,10 @@ export default async function DoctorDashboardPage() {
           {recentQuestionnaires && recentQuestionnaires.length > 0 ? (
             <div className="space-y-3">
               {recentQuestionnaires.map((q) => (
-                q.patients && (
+                q.patients && q.patients.length > 0 && (
                   <Link
-                    key={q.patients.id + q.type + q.submitted_at}
-                    href={`/dashboard/doctor/patients/${q.patients.id}?tab=questionnaires`}
+                    key={q.patients[0].id + q.type + q.submitted_at}
+                    href={`/dashboard/doctor/patients/${q.patients[0].id}?tab=questionnaires`}
                     className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-orange-50 transition-colors"
                   >
                   <div className="flex items-center">
@@ -274,7 +274,7 @@ export default async function DoctorDashboardPage() {
                     </div>
                     <div className="ml-3">
                       <p className="text-sm font-medium text-gray-900">
-                        {q.patients.first_name} {q.patients.last_name}
+                        {q.patients[0].first_name} {q.patients[0].last_name}
                       </p>
                       <p className="text-xs text-gray-500 capitalize">
                         {q.type} • {new Date(q.submitted_at).toLocaleDateString('fr-FR')}
