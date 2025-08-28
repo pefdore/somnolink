@@ -6,22 +6,6 @@ import PatientInfoPanel from "@/components/doctor/PatientInfoPanel";
 import PatientTimeline from "@/components/doctor/PatientTimeline";
 import ConsultationTabs from "@/components/doctor/ConsultationTabs";
 
-const formatName = (civility: string | null, firstName: string | null, lastName: string | null) => {
-  return `${civility || ''} ${firstName || ''} ${lastName || ''}`.trim();
-};
-
-const calculateAge = (birthDate: string | null): number | string => {
-  if (!birthDate) return 'N/A';
-  const birth = new Date(birthDate);
-  if (isNaN(birth.getTime())) return '—';
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const monthDifference = today.getMonth() - birth.getMonth();
-  if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
-  return age;
-}
 
 export default async function Suivi4MoisPage({ params }: { params: { patientId: string } }) {
   

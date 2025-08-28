@@ -4,7 +4,7 @@ type Questionnaire = {
     id: string;
     type: string;
     submitted_at: string;
-    answers: Record<string, any>;
+    answers: Record<string, unknown>;
 };
 
 const questionnaireTitles: Record<string, string> = {
@@ -13,7 +13,7 @@ const questionnaireTitles: Record<string, string> = {
     'PRE_CONSULTATION': 'Questionnaire de Pré-consultation'
 };
 
-const formatValue = (value: any): string => {
+const formatValue = (value: unknown): string => {
     if (value === null || value === undefined) return 'Non renseigné';
     if (typeof value === 'boolean') return value ? 'Oui' : 'Non';
     if (typeof value === 'object') {
@@ -23,7 +23,7 @@ const formatValue = (value: any): string => {
     return String(value);
 };
 
-const renderSection = (title: string, data: Record<string, any>, mapper?: Record<string, string>) => (
+const renderSection = (title: string, data: Record<string, unknown>, mapper?: Record<string, string>) => (
     <div className="space-y-4">
         <h4 className="font-semibold text-lg text-blue-800 border-b pb-2">{title}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -75,7 +75,7 @@ const renderEpworthScale = (epworth: Record<string, string>) => {
     );
 };
 
-const renderSymptoms = (symptoms: Record<string, any>) => {
+const renderSymptoms = (symptoms: Record<string, unknown>) => {
     const symptomLabels: Record<string, string> = {
         'snoring': 'Ronflements',
         'breathing_pauses': 'Pauses respiratoires observées',

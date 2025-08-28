@@ -28,17 +28,34 @@ interface Patient {
   attending_doctor_first_name: string | null;
   attending_doctor_last_name: string | null;
   appointments?: Array<{
-    questionnaires?: Array<unknown>;
+    questionnaires?: Array<{
+      id: string;
+      title?: string;
+      completed_at?: string;
+    }>;
   }>;
   documents?: Array<{
+    id: string;
     type?: string;
     name?: string;
+    created_at?: string;
+    uploaded_by?: string;
   }>;
   prescriptions?: Array<{
+    id: string;
     type?: string;
     name?: string;
+    created_at?: string;
   }>;
-  notes?: Array<unknown>;
+  notes?: Array<{
+    id: string;
+    content: string;
+    created_at: string;
+    doctors?: {
+      first_name?: string;
+      last_name?: string;
+    };
+  }>;
   medical_history?: {
     description: string;
     entries: Array<{
@@ -188,7 +205,7 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
     }
   };
 
-  const handleSearchCim = async (term: string) => {
+  const handleSearchCim = async (term: string): Promise<Array<{ code: string; label: string; system?: string }>> => {
     if (term.length < 3) {
       return [];
     }
@@ -211,7 +228,7 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
     }
   };
 
-  const handleSelectCim = async (item: { code: string; label: string; system?: string }) => {
+  const handleSelectCim = async (item: { code: string; label: string; system?: string }): Promise<void> => {
     try {
       console.log(`Ajout d'antécédent: ${item.label} (${item.code}) pour ${searchType}`);
       

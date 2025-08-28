@@ -15,7 +15,41 @@ interface TimelineEvent {
 }
 
 interface PatientTimelineProps {
-  patient: any;
+  patient: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+    notes?: Array<{
+      id: string;
+      content: string;
+      created_at: string;
+      doctors?: {
+        first_name?: string;
+        last_name?: string;
+      };
+    }>;
+    appointments?: Array<{
+      id: string;
+      date: string;
+      questionnaires?: Array<{
+        id: string;
+        title?: string;
+        completed_at?: string;
+      }>;
+    }>;
+    documents?: Array<{
+      id: string;
+      type?: string;
+      name?: string;
+      created_at: string;
+      uploaded_by: string;
+    }>;
+    prescriptions?: Array<{
+      id: string;
+      medication?: string;
+      created_at: string;
+    }>;
+  };
   doctorId: string;
 }
 
@@ -63,7 +97,7 @@ export default function PatientTimeline({ patient, doctorId }: PatientTimelinePr
 
     // Notes
     if (patient.notes && patient.notes.length > 0) {
-      patient.notes.forEach((note: any) => {
+      patient.notes?.forEach((note) => {
         events.push({
           id: `note-${note.id}`,
           type: 'note',
@@ -80,7 +114,7 @@ export default function PatientTimeline({ patient, doctorId }: PatientTimelinePr
 
     // Appointments with questionnaires
     if (patient.appointments && patient.appointments.length > 0) {
-      patient.appointments.forEach((appointment: any) => {
+      patient.appointments?.forEach((appointment) => {
         events.push({
           id: `appointment-${appointment.id}`,
           type: 'appointment',
@@ -95,7 +129,7 @@ export default function PatientTimeline({ patient, doctorId }: PatientTimelinePr
 
         // Questionnaires from appointments
         if (appointment.questionnaires && appointment.questionnaires.length > 0) {
-          appointment.questionnaires.forEach((questionnaire: any) => {
+          appointment.questionnaires?.forEach((questionnaire) => {
             events.push({
               id: `questionnaire-${questionnaire.id}`,
               type: 'questionnaire',
@@ -114,7 +148,7 @@ export default function PatientTimeline({ patient, doctorId }: PatientTimelinePr
 
     // Documents (PGV, etc.)
     if (patient.documents && patient.documents.length > 0) {
-      patient.documents.forEach((document: any) => {
+      patient.documents?.forEach((document) => {
         events.push({
           id: `document-${document.id}`,
           type: 'document',
@@ -133,7 +167,7 @@ export default function PatientTimeline({ patient, doctorId }: PatientTimelinePr
 
     // Prescriptions
     if (patient.prescriptions && patient.prescriptions.length > 0) {
-      patient.prescriptions.forEach((prescription: any) => {
+      patient.prescriptions?.forEach((prescription) => {
         events.push({
           id: `prescription-${prescription.id}`,
           type: 'prescription',

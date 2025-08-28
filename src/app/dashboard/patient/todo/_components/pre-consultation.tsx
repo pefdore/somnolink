@@ -39,7 +39,7 @@ const formSchema = z.object({
   neck_circumference: z.string().optional(),
   consultation_reasons: z.record(z.string(), z.boolean().default(false)).optional().default({}),
   consultation_reason_other: z.string().optional().default(''),
-  symptoms: z.record(z.string(), z.object({ frequency: z.string().optional(), comments: z.string().optional(), details: z.record(z.string(), z.any()).optional(), })).optional().default({}),
+  symptoms: z.record(z.string(), z.object({ frequency: z.string().optional(), comments: z.string().optional(), details: z.record(z.string(), z.unknown()).optional(), })).optional().default({}),
   epworth: z.record(z.string(), z.string()).optional().default({}),
   active_sleepiness: z.record(z.string(), z.string().optional().default('')).optional().default({}),
   sleep_habits: z.record(z.string(), z.any()).optional(),
@@ -78,7 +78,7 @@ const stepFields: string[][] = [
     [],
 ];
 
-const SymptomRow = ({ control, namePrefix, label, subquestions }: { control: Control<any>, namePrefix: string, label: string, subquestions?: React.ReactNode }) => (
+const SymptomRow = ({ control, namePrefix, label, subquestions }: { control: Control<unknown>, namePrefix: string, label: string, subquestions?: React.ReactNode }) => (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start border-t py-4"><div className="md:col-span-3"><p className="font-medium text-sm text-gray-800">{label}</p>{subquestions && <div className="text-xs text-gray-600 mt-2 space-y-2">{subquestions}</div>}</div><div className="md:col-span-6"><FormField control={control} name={`${namePrefix}.frequency` as any} render={({ field }) => (<FormItem><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex justify-around">{['Jamais', 'Rarement', 'Parfois', 'Souvent', 'Toujours'].map(val => (<FormItem key={val} className="flex flex-col items-center space-y-1"><FormControl><RadioGroupItem value={val} id={`${namePrefix}-${val}`} /></FormControl><Label htmlFor={`${namePrefix}-${val}`} className="text-xs">{val}</Label></FormItem>))}</RadioGroup></FormControl></FormItem>)}/></div><div className="md:col-span-3"><FormField control={control} name={`${namePrefix}.comments` as any} render={({ field }) => (<FormItem><FormControl><Input placeholder="Commentaires..." {...field} /></FormControl></FormItem>)}/></div></div>
 );
 
@@ -93,7 +93,7 @@ export function PreConsultation({ patientId, appointment, isDone }: { patientId:
   const [currentStep, setCurrentStep] = useState(0);
   const [isEpworthLocked, setIsEpworthLocked] = useState(false);
 
-  const form = useForm<any>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema) as any,
     mode: "onTouched",
     defaultValues: {
@@ -127,11 +127,33 @@ export function PreConsultation({ patientId, appointment, isDone }: { patientId:
   const hasDrivingLicense = useWatch({ control, name: "driving_info.has_license" });
   const hadPastTreatment = useWatch({ control, name: "sleep_disorder_history.had_treatment" });
 
-  useEffect(() => { const fetchDoctors = async () => { const { data } = await supabase.from('doctors').select('id, first_name, last_name'); if (data) setDoctors(data); }; fetchDoctors(); }, [supabase]);
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      const { data } = await supabase.from('doctors').select('id, first_name, last_name');
+      if (data) setDoctors(data);
+    };
+    fetchDoctors();
+  }, [supabase]);
 
-  const handleNext = async () => { const fieldsToValidate = stepFields[currentStep] as string[]; const isValid = await trigger(fieldsToValidate); if (isValid) { setCurrentStep(prev => prev + 1); window.scrollTo(0, 0); } };
-  const handlePrevious = () => { setCurrentStep(prev => prev - 1); window.scrollTo(0, 0); };
-  const handleLockEpworth = async () => { const epworthFields = Object.keys(form.getValues().epworth || {}).map(k => `epworth.${k}`) as string[]; const isValid = await trigger(epworthFields); if (isValid) { setIsEpworthLocked(true); } };
+  const handleNext = async () => {
+    const fieldsToValidate = stepFields[currentStep] as string[];
+    const isValid = await trigger(fieldsToValidate);
+    if (isValid) {
+      setCurrentStep(prev => prev + 1);
+      window.scrollTo(0, 0);
+    }
+  };
+  const handlePrevious = () => {
+    setCurrentStep(prev => prev - 1);
+    window.scrollTo(0, 0);
+  };
+  const handleLockEpworth = async () => {
+    const epworthFields = Object.keys(form.getValues().epworth || {}).map(k => `epworth.${k}`) as string[];
+    const isValid = await trigger(epworthFields);
+    if (isValid) {
+      setIsEpworthLocked(true);
+    }
+  };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files && e.target.files[0]) { setReferralFile(e.target.files[0]); setFileName(e.target.files[0].name); } };
   // --- FONCTION DE SOUMISSION ACTIVÉE ---
   async function onSubmit(values: FormValues) {
@@ -204,9 +226,9 @@ export function PreConsultation({ patientId, appointment, isDone }: { patientId:
       setMessage('Questionnaire enregistré avec succès !');
       router.refresh();
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Erreur détaillée lors de la soumission du questionnaire:', error);
-        setMessage(`Une erreur est survenue : ${error.message}`);
+        setMessage(`Une erreur est survenue : ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     } finally {
         setIsSubmitting(false);
     }

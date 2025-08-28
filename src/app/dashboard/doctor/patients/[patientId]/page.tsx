@@ -8,22 +8,7 @@ import PatientInfoPanel from "@/components/doctor/PatientInfoPanel";
 import PatientTimeline from "@/components/doctor/PatientTimeline";
 import ConsultationDropdown from "@/components/doctor/ConsultationDropdown";
 
-const formatName = (civility: string | null, firstName: string | null, lastName: string | null) => {
-    return `${civility || ''} ${firstName || ''} ${lastName || ''}`.trim();
-};
 
-const calculateAge = (birthDate: string | null): number | string => {
-    if (!birthDate) return 'N/A';
-    const birth = new Date(birthDate);
-    if (isNaN(birth.getTime())) return '—';
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDifference = today.getMonth() - birth.getMonth();
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birth.getDate())) {
-        age--;
-    }
-    return age;
-}
 
 export default async function PatientFilePage({ params }: { params: { patientId: string } }) {
   
@@ -96,12 +81,15 @@ export default async function PatientFilePage({ params }: { params: { patientId:
   console.log('Patient data loaded:', {
     patientId,
     notesCount: notes?.length || 0,
-    notes: notes?.map((n: any) => ({
-      id: n.id,
-      content: n.content,
-      created_at: n.created_at,
-      doctors: n.doctors || { first_name: 'Unknown', last_name: 'Doctor' }
-    })),
+    notes: notes?.map((n: unknown) => {
+      const note = n as { id: string; content: string; created_at: string; doctors?: { first_name: string; last_name: string } };
+      return {
+        id: note.id,
+        content: note.content,
+        created_at: note.created_at,
+        doctors: note.doctors || { first_name: 'Unknown', last_name: 'Doctor' }
+      };
+    }),
     hasMedicalHistory: !!patient.medical_history,
     hasSurgicalHistory: !!patient.surgical_history,
     medicalHistoryEntries: patient.medical_history?.entries?.length || 0,

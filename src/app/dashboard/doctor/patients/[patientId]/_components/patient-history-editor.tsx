@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { useDebounce } from 'use-debounce';
 
 
-import type { User } from '@supabase/supabase-js'; // On aura besoin de l'utilisateur pour le nom
+// import type { User } from '@supabase/supabase-js'; // Commenté car non utilisé pour le moment
 
 // --- TYPES (inchangés) ---
 type StructuredEntry = {
@@ -29,7 +29,7 @@ type ApiSuggestion = Omit<StructuredEntry, 'definedBy' | 'note' | 'creatorName' 
 export default function PatientHistoryEditor({ patientId, viewMode = 'full' }: { patientId: string, viewMode?: 'condensed' | 'full' }) {
     // --- États (inchangés) ---
     const supabase = createClient();
-    const [doctorName, setDoctorName] = useState<string>('');
+    const [doctorName, setDoctorName] = useState<string>(''); // setDoctorName est conservé pour usage futur
     const [formData, setFormData] = useState<HistoryData>({
         medical_history: { description: '', entries: [] },
         surgical_history: { description: '', entries: [] },
@@ -84,8 +84,9 @@ export default function PatientHistoryEditor({ patientId, viewMode = 'full' }: {
                 },
                 allergies: { description: allergies.description || '', entries: Array.isArray(allergies.entries) ? allergies.entries : [] }
             });
-        } catch (e: any) {
-            toast.error("Erreur inattendue.", { description: e.message });
+        } catch (e: unknown) {
+            const error = e as Error;
+            toast.error("Erreur inattendue.", { description: error.message });
         } finally {
             setIsLoading(false);
         }
@@ -105,10 +106,10 @@ export default function PatientHistoryEditor({ patientId, viewMode = 'full' }: {
             setIsSearching(true);
             try {
                 const response = await fetch(`/api/terminology-search?q=${searchTerm}`);
-                const data = await response.json();
-                const taggedData = data.map((d: any) => ({ ...d, isSurgicalSuggestion: d.code.startsWith('Z') }));
+                const data = await response.json() as ApiSuggestion[];
+                const taggedData = data.map((d) => ({ ...d, isSurgicalSuggestion: d.code.startsWith('Z') }));
                 setSuggestions(taggedData);
-            } catch (e) { toast.error("La recherche a échoué.") }
+            } catch { toast.error("La recherche a échoué.") }
             finally { setIsSearching(false); }
         };
         searchTerminology();
