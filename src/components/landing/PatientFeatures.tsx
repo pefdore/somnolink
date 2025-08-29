@@ -108,7 +108,7 @@ export function PatientFeatures() {
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold mb-2">30s</div>
-              <p className="text-blue-100">Temps d'inscription moyen</p>
+              <p className="text-blue-100">Temps d&apos;inscription moyen</p>
             </div>
             <div>
               <div className="text-3xl md:text-4xl font-bold mb-2">100%</div>

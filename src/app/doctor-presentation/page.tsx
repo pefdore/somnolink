@@ -12,7 +12,7 @@ export default function DoctorPresentationPage() {
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors">
               <ArrowLeft className="w-5 h-5" />
-              <span>Retour à l'accueil</span>
+              <span>Retour à l&apos;accueil</span>
             </Link>
             
             <div className="flex items-center space-x-2">

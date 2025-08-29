@@ -23,7 +23,7 @@ export function PatientHero() {
             </h1>
 
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              Suivez votre traitement d'apnée du sommeil en toute simplicité. 
+              Suivez votre traitement d&apos;apnée du sommeil en toute simplicité. 
               Restez connecté avec votre médecin et optimisez votre bien-être au quotidien.
             </p>
 
