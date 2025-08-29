@@ -12,11 +12,11 @@ export function Hero() {
         <p className="mt-4 text-xl md:text-2xl text-gray-200">
           La plateforme collaborative qui relie médecins du sommeil et patients pour un parcours de soin simplifié et efficace.
         </p>
-        <div className="mt-8 space-x-4">
-          <Link href="/auth/register-doctor" className="bg-white text-blue-700 px-8 py-3 rounded-full font-bold text-lg hover:bg-gray-200">
+        <div className="mt-8 flex flex-col sm:flex-row gap-4 sm:gap-4 justify-center">
+          <Link href="/auth/register-doctor" className="bg-white text-blue-700 px-6 py-3 sm:px-8 sm:py-3 rounded-full font-bold text-base sm:text-lg hover:bg-gray-200 text-center">
             Je suis un professionnel
           </Link>
-          <Link href="/auth/register" className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-500 border-2 border-white">
+          <Link href="/auth/register" className="bg-blue-600 text-white px-6 py-3 sm:px-8 sm:py-3 rounded-full font-bold text-base sm:text-lg hover:bg-blue-500 border-2 border-white text-center">
             Je suis un patient
           </Link>
         </div>
