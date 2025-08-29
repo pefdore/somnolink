@@ -22,7 +22,7 @@ export default function EnvDebugPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Debug des Variables d'Environnement</h1>
+      <h1 className="text-2xl font-bold mb-4">Debug des Variables d&apos;Environnement</h1>
       <div className="bg-gray-100 p-4 rounded">
         <h2 className="text-xl font-semibold mb-2">Variables côté client :</h2>
         <pre className="bg-white p-4 rounded overflow-auto">
