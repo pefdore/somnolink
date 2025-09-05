@@ -39,9 +39,16 @@ export default function LoginPage() {
       setError(error.message);
       setIsLoading(false);
     } else if (data.user) {
-      // Connexion réussie, on vérifie le rôle
+      // VÉRIFICATION DE SÉCURITÉ : Email doit être confirmé
+      if (!data.user.email_confirmed_at) {
+        console.log('🚫 [SECURITY] Email NON confirmé - redirection vers confirmation');
+        router.push('/auth/confirm-email');
+        return;
+      }
+
+      // Connexion réussie et email confirmé, on vérifie le rôle
       const userRole = data.user.user_metadata.role;
-      
+
       // On redirige explicitement en fonction du rôle
       if (userRole === 'DOCTOR') {
         console.log("Redirection vers /dashboard/doctor");

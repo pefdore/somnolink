@@ -98,18 +98,25 @@ export default function PatientHistoryEditor({ patientId, viewMode = 'full' }: {
 
     useEffect(() => {
         const searchTerm = activeSearch === 'medical_history' ? debouncedMedicalSearch : activeSearch === 'surgical_history' ? debouncedSurgicalSearch : debouncedAllergySearch;
+        console.log('[PATIENT_HISTORY_EDITOR] useEffect triggered - searchTerm:', searchTerm, 'activeSearch:', activeSearch);
         if (!searchTerm || searchTerm.length < 3) {
             setSuggestions([]);
             return;
         }
         const searchTerminology = async () => {
+            console.log('[PATIENT_HISTORY_EDITOR] Starting search for:', searchTerm);
             setIsSearching(true);
             try {
                 const response = await fetch(`/api/terminology-search?q=${searchTerm}`);
+                console.log('[PATIENT_HISTORY_EDITOR] API response status:', response.status);
                 const data = await response.json() as ApiSuggestion[];
+                console.log('[PATIENT_HISTORY_EDITOR] API response data length:', data.length);
                 const taggedData = data.map((d) => ({ ...d, isSurgicalSuggestion: d.code.startsWith('Z') }));
                 setSuggestions(taggedData);
-            } catch { toast.error("La recherche a échoué.") }
+            } catch (error) {
+                console.error('[PATIENT_HISTORY_EDITOR] Search error:', error);
+                toast.error("La recherche a échoué.");
+            }
             finally { setIsSearching(false); }
         };
         searchTerminology();

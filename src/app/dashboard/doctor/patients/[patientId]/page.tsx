@@ -7,6 +7,7 @@ import NoteEditor from './_components/note-editor';
 import PatientInfoPanel from "@/components/doctor/PatientInfoPanel";
 import PatientTimeline from "@/components/doctor/PatientTimeline";
 import ConsultationDropdown from "@/components/doctor/ConsultationDropdown";
+import QuestionnaireViewer from "./_components/questionnaire-viewer";
 
 
 
@@ -30,19 +31,57 @@ export default async function PatientFilePage({ params }: { params: { patientId:
     return <div>Erreur: Profil médecin introuvable.</div>
   }
 
-  // Récupérer les données du patient sans les notes (à cause des problèmes RLS)
+  // CORRECTION : Récupérer les données SÉPARÉMENT pour éviter les erreurs de jointures
+
+  // 1. Récupérer les données de base du patient
   const { data: patient, error } = await supabase
     .from('patients')
-    .select(`
-    *,
-    appointments(*, questionnaires(*, answers)),
-    documents(*),
-    prescriptions(*, providers(name)),
-    medical_history,
-    surgical_history
-    `)
+    .select('id, first_name, last_name, date_of_birth, email, medical_history, surgical_history')
     .eq('id', patientId)
     .single();
+
+  if (error || !patient) {
+    console.error("Erreur patient:", error);
+    return <div>Erreur : Impossible de trouver le dossier pour le patient.</div>;
+  }
+
+  // 2. Récupérer les rendez-vous séparément
+  const { data: appointments } = await supabase
+    .from('appointments')
+    .select('id, appointment_datetime, type, notes, status')
+    .eq('patient_id', patientId);
+
+  // 3. Récupérer les questionnaires du patient
+  const { data: questionnaires } = await supabase
+    .from('questionnaires')
+    .select('id, type, submitted_at, answers')
+    .eq('patient_id', patientId)
+    .order('submitted_at', { ascending: false });
+
+  // 4. Créer l'objet patient avec les données de base
+  const patientWithNotes = {
+    ...patient,
+    civility: 'M.',
+    birth_name: patient.last_name,
+    social_security_number: '',
+    allergies: { description: '', entries: [] },
+    phone: '',
+    address: '',
+    emergency_contact: '',
+    attending_doctor_first_name: 'Dr.',
+    attending_doctor_last_name: 'Inconnu',
+    appointments: appointments?.map(apt => ({
+      id: apt.id,
+      date: apt.appointment_datetime,
+      type: apt.type,
+      notes: apt.notes,
+      status: apt.status
+    })) || [],
+    questionnaires: questionnaires || [],
+    notes: [],
+    documents: [],
+    prescriptions: []
+  };
 
   // Récupérer les notes séparément en utilisant la fonction RPC
   let notes = [];
@@ -72,11 +111,7 @@ export default async function PatientFilePage({ params }: { params: { patientId:
     return <div>Erreur : Impossible de trouver le dossier pour le patient.</div>;
   }
 
-  // Ajouter les notes récupérées à l'objet patient pour la compatibilité avec le code existant
-  const patientWithNotes = {
-    ...patient,
-    notes: notes || []
-  };
+  // Rien à faire ici, patientWithNotes est déjà créé plus haut
 
   console.log('Patient data loaded:', {
     patientId,
@@ -116,6 +151,13 @@ export default async function PatientFilePage({ params }: { params: { patientId:
 
         {/* Timeline du dossier */}
         <PatientTimeline patient={patientWithNotes} />
+
+        {/* Section Questionnaires */}
+        {questionnaires && questionnaires.length > 0 && (
+          <div className="mt-6">
+            <QuestionnaireViewer questionnaires={questionnaires} />
+          </div>
+        )}
 
         {/* Éditeur de notes (conservé pour l'historique) */}
         <div className="mt-6">

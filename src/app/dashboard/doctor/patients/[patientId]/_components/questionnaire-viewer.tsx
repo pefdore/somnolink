@@ -37,10 +37,10 @@ const renderSection = (title: string, data: Record<string, unknown>, mapper?: Re
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {Object.entries(data).map(([key, value]) => {
                 if (value === null || value === undefined || value === '') return null;
-                
+
                 const displayName = mapper?.[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 const formattedValue = formatValue(value);
-                
+
                 return (
                     <div key={key} className="bg-gray-50 p-4 rounded-lg border">
                         <p className="font-medium text-sm text-gray-700 mb-1">{displayName}</p>
@@ -66,13 +66,13 @@ const renderEpworthScale = (epworth: Record<string, string>): JSX.Element => {
 
     return (
         <div className="space-y-3">
-            <h4 className="font-semibold text-lg text-blue-800 border-b pb-2">Échelle de Somnolence d&apos;Epworth</h4>
+            <h4 className="font-semibold text-lg text-blue-800 border-b pb-2">Échelle de Somnolence d'Epworth</h4>
             {Object.entries(epworth).map(([key, score]) => (
                 <div key={key} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border">
                     <span className="text-gray-700">{epworthQuestions[key] || key}</span>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        parseInt(score) > 2 
-                            ? 'bg-red-100 text-red-800' 
+                        parseInt(score) > 2
+                            ? 'bg-red-100 text-red-800'
                             : 'bg-blue-100 text-blue-800'
                     }`}>
                         Score: {score}
@@ -146,163 +146,172 @@ const renderChecklist = (data: Record<string, boolean>, title: string, labels: R
 
 export default function QuestionnaireViewer({ questionnaires }: { questionnaires: Questionnaire[] }) {
     if (!questionnaires || questionnaires.length === 0) {
-        return <p className="text-gray-500">Aucun questionnaire soumis.</p>;
+        return (
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-semibold text-gray-800 border-b pb-4 mb-4">Questionnaires du Patient</h3>
+                <p className="text-gray-500 text-center py-8">Aucun questionnaire soumis par le patient.</p>
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-6">
-            {questionnaires.map((q) => {
-                const answers = q.answers;
-                
-                return (
-                    <div key={q.id} className="bg-white rounded-lg shadow-md border-2 border-blue-100 overflow-hidden">
-                        <div className="bg-blue-50 px-6 py-4 border-b border-blue-200">
-                            <h3 className="text-2xl font-bold text-blue-900">
-                                {questionnaireTitles[q.type] || q.type}
-                            </h3>
-                            <p className="text-blue-700 mt-1">
-                                Soumis le {new Date(q.submitted_at).toLocaleDateString('fr-FR', { 
-                                    weekday: 'long', 
-                                    year: 'numeric', 
-                                    month: 'long', 
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
-                            </p>
-                            {(answers.epworth_total as number) !== undefined && (answers.epworth_total as number) > 0 && (
-                                <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${
-                                    (answers.epworth_total as number) > 10
-                                        ? 'bg-red-100 text-red-800'
-                                        : 'bg-green-100 text-green-800'
-                                }`}>
-                                    Score Epworth: {answers.epworth_total as number}
-                                </span>
-                            )}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-gray-800 border-b pb-4 mb-6">Questionnaires du Patient</h3>
+
+            <div className="space-y-6">
+                {questionnaires.map((q) => {
+                    const answers = q.answers;
+
+                    return (
+                        <div key={q.id} className="bg-white rounded-lg shadow-md border-2 border-blue-100 overflow-hidden">
+                            <div className="bg-blue-50 px-6 py-4 border-b border-blue-200">
+                                <h3 className="text-2xl font-bold text-blue-900">
+                                    {questionnaireTitles[q.type] || q.type}
+                                </h3>
+                                <p className="text-blue-700 mt-1">
+                                    Soumis le {new Date(q.submitted_at).toLocaleDateString('fr-FR', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </p>
+                                {(answers.epworth_total as number) !== undefined && (answers.epworth_total as number) > 0 && (
+                                    <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${
+                                        (answers.epworth_total as number) > 10
+                                            ? 'bg-red-100 text-red-800'
+                                            : 'bg-green-100 text-green-800'
+                                    }`}>
+                                        Score Epworth: {answers.epworth_total as number}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="p-6 space-y-8">
+                                {/* Informations générales */}
+                                {renderSection('Informations Générales', {
+                                    height: answers.height ? `${answers.height} cm` : null,
+                                    weight: answers.weight ? `${answers.weight} kg` : null,
+                                    neck_circumference: answers.neck_circumference ? `${answers.neck_circumference} cm` : null,
+                                    profession: answers.profession as string,
+                                    family_situation: answers.family_situation === 'seul' ? 'Seul(e)' :
+                                                    answers.family_situation === 'en_couple' ? 'En couple' :
+                                                    answers.family_situation as string
+                                }) as ReactNode}
+
+                                {/* Rendez-vous */}
+                                {answers.appointment_date != null && answers.appointment_time != null ? (
+                                    renderSection('Rendez-vous', {
+                                        date: new Date(`${answers.appointment_date as string}T${answers.appointment_time as string}`).toLocaleDateString('fr-FR'),
+                                        heure: answers.appointment_time as string
+                                    })
+                                ) : null}
+
+                                {/* Échelle Epworth */}
+                                {answers.epworth ? renderEpworthScale(answers.epworth as Record<string, string>) : null}
+
+                                {/* Motifs de consultation */}
+                                {answers.consultation_reasons != null ? renderChecklist(
+                                    answers.consultation_reasons as Record<string, boolean>,
+                                    'Motifs de Consultation',
+                                    {
+                                        'Ronflements importants': 'Ronflements importants',
+                                        'Sensation de fatigue': 'Sensation de fatigue',
+                                        'Somnolence excessive': 'Somnolence excessive',
+                                        'Pauses respiratoires observées': 'Pauses respiratoires observées',
+                                        'Sensation d\'étouffement': 'Sensation d\'étouffement',
+                                        'Maux de tête le matin': 'Maux de tête le matin',
+                                        'Réveils fréquents pour uriner (Nycturie)': 'Réveils fréquents pour uriner',
+                                        'Sommeil non réparateur': 'Sommeil non réparateur',
+                                        'Difficultés de concentration / mémoire': 'Difficultés de concentration/mémoire',
+                                        'Irritabilité / changements d\'humeur': 'Irritabilité/changements d\'humeur'
+                                    }
+                                ) : null}
+
+                                {/* Symptômes */}
+                                {answers.symptoms ? renderSymptoms(answers.symptoms as Record<string, SymptomData>) : null}
+
+                                {/* Habitudes de sommeil */}
+                                {answers.sleep_habits != null ? renderSection('Habitudes de Sommeil', answers.sleep_habits as Record<string, unknown>, {
+                                    weekday_bedtime: 'Coucher en semaine',
+                                    weekday_waketime: 'Lever en semaine',
+                                    weekday_hours: 'Heures de sommeil (semaine)',
+                                    weekend_bedtime: 'Coucher week-end',
+                                    weekend_waketime: 'Lever week-end',
+                                    weekend_hours: 'Heures de sommeil (week-end)',
+                                    naps: 'Fait des siestes',
+                                    insomnia: 'Souffre d\'insomnie',
+                                    shift_work: 'Travail en horaires décalés'
+                                }) : null}
+
+                                {/* Antécédents médicaux */}
+                                {answers.medical_history != null ? renderChecklist(
+                                    answers.medical_history as Record<string, boolean>,
+                                    'Antécédents Médicaux',
+                                    {
+                                        'Hypertension artérielle': 'Hypertension artérielle',
+                                        'Maladie cardiaque': 'Maladie cardiaque',
+                                        'Accident vasculaire cérébral (AVC)': 'AVC',
+                                        'Diabète': 'Diabète',
+                                        'Maladie respiratoire (asthme, BPCO)': 'Maladie respiratoire',
+                                        'Maladie neurologique': 'Maladie neurologique',
+                                        'Dépression': 'Dépression',
+                                        'Anxiété': 'Anxiété',
+                                        'Trouble bipolaire': 'Trouble bipolaire',
+                                        'Hypothyroïdie': 'Hypothyroïdie',
+                                        'Problèmes rénaux': 'Problèmes rénaux',
+                                        'Problèmes hépatiques': 'Problèmes hépatiques',
+                                        'Anémie': 'Anémie',
+                                        'Fibromyalgie ou douleurs chroniques': 'Fibromyalgie/douleurs chroniques'
+                                    }
+                                ) : null}
+
+                                {/* Traitements actuels */}
+                                {answers.current_treatments != null ? (
+                                    renderSection('Traitements Actuels', {
+                                        traitements: answers.current_treatments as string
+                                    })
+                                ) : null}
+
+                                {/* Habitudes de vie */}
+                                {answers.life_habits != null ? renderSection('Habitudes de Vie', answers.life_habits as Record<string, unknown>, {
+                                    smoking_status: 'Tabagisme',
+                                    smoking_details: 'Détails tabagisme',
+                                    alcohol_status: 'Consommation d\'alcool',
+                                    alcohol_details: 'Détails consommation alcool'
+                                }) : null}
+
+                                {/* Conduite automobile */}
+                                {answers.driving_info != null ? renderSection('Conduite Automobile', answers.driving_info as Record<string, unknown>, {
+                                    has_license: 'Permis de conduire',
+                                    license_type: 'Type de permis',
+                                    sleepy_while_driving: 'Somnolence au volant',
+                                    accident_related_to_sleepiness: 'Accident lié à la somnolence'
+                                }) : null}
+
+                                {/* Commentaires libres */}
+                                {answers.free_comments != null ? (
+                                    renderSection('Commentaires Libres', {
+                                        commentaires: answers.free_comments as string
+                                    })
+                                ) : null}
+
+                                {/* Consentement */}
+                                {answers.consent_signature != null ? (
+                                    <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                                        <h4 className="font-semibold text-green-800">Consentement Signé</h4>
+                                        <p className="text-green-700 mt-1">
+                                            Le patient a confirmé avoir lu et compris les informations sur les risques et obligations légales.
+                                        </p>
+                                    </div>
+                                ) : null}
+                            </div>
                         </div>
-                        
-                        <div className="p-6 space-y-8">
-                            {/* Informations générales */}
-                            {renderSection('Informations Générales', {
-                                height: answers.height ? `${answers.height} cm` : null,
-                                weight: answers.weight ? `${answers.weight} kg` : null,
-                                neck_circumference: answers.neck_circumference ? `${answers.neck_circumference} cm` : null,
-                                profession: answers.profession as string,
-                                family_situation: answers.family_situation === 'seul' ? 'Seul(e)' :
-                                               answers.family_situation === 'en_couple' ? 'En couple' :
-                                               answers.family_situation as string
-                            }) as ReactNode}
-
-                            {/* Rendez-vous */}
-                            {answers.appointment_date != null && answers.appointment_time != null ? (
-                                renderSection('Rendez-vous', {
-                                    date: new Date(`${answers.appointment_date as string}T${answers.appointment_time as string}`).toLocaleDateString('fr-FR'),
-                                    heure: answers.appointment_time as string
-                                })
-                            ) : null}
-
-                            {/* Échelle Epworth */}
-                            {answers.epworth ? renderEpworthScale(answers.epworth as Record<string, string>) : null}
-
-                            {/* Motifs de consultation */}
-                            {answers.consultation_reasons != null ? renderChecklist(
-                                answers.consultation_reasons as Record<string, boolean>,
-                                'Motifs de Consultation',
-                                {
-                                    'Ronflements importants': 'Ronflements importants',
-                                    'Sensation de fatigue': 'Sensation de fatigue',
-                                    'Somnolence excessive': 'Somnolence excessive',
-                                    'Pauses respiratoires observées': 'Pauses respiratoires observées',
-                                    'Sensation d\'étouffement': 'Sensation d\'étouffement',
-                                    'Maux de tête le matin': 'Maux de tête le matin',
-                                    'Réveils fréquents pour uriner (Nycturie)': 'Réveils fréquents pour uriner',
-                                    'Sommeil non réparateur': 'Sommeil non réparateur',
-                                    'Difficultés de concentration / mémoire': 'Difficultés de concentration/mémoire',
-                                    'Irritabilité / changements d\'humeur': 'Irritabilité/changements d\'humeur'
-                                }
-                            ) : null}
-
-                            {/* Symptômes */}
-                            {answers.symptoms ? renderSymptoms(answers.symptoms as Record<string, SymptomData>) : null}
-
-                            {/* Habitudes de sommeil */}
-                            {answers.sleep_habits != null ? renderSection('Habitudes de Sommeil', answers.sleep_habits as Record<string, unknown>, {
-                                weekday_bedtime: 'Coucher en semaine',
-                                weekday_waketime: 'Lever en semaine',
-                                weekday_hours: 'Heures de sommeil (semaine)',
-                                weekend_bedtime: 'Coucher week-end',
-                                weekend_waketime: 'Lever week-end',
-                                weekend_hours: 'Heures de sommeil (week-end)',
-                                naps: 'Fait des siestes',
-                                insomnia: 'Souffre d\'insomnie',
-                                shift_work: 'Travail en horaires décalés'
-                            }) : null}
-
-                            {/* Antécédents médicaux */}
-                            {answers.medical_history != null ? renderChecklist(
-                                answers.medical_history as Record<string, boolean>,
-                                'Antécédents Médicaux',
-                                {
-                                    'Hypertension artérielle': 'Hypertension artérielle',
-                                    'Maladie cardiaque': 'Maladie cardiaque',
-                                    'Accident vasculaire cérébral (AVC)': 'AVC',
-                                    'Diabète': 'Diabète',
-                                    'Maladie respiratoire (asthme, BPCO)': 'Maladie respiratoire',
-                                    'Maladie neurologique': 'Maladie neurologique',
-                                    'Dépression': 'Dépression',
-                                    'Anxiété': 'Anxiété',
-                                    'Trouble bipolaire': 'Trouble bipolaire',
-                                    'Hypothyroïdie': 'Hypothyroïdie',
-                                    'Problèmes rénaux': 'Problèmes rénaux',
-                                    'Problèmes hépatiques': 'Problèmes hépatiques',
-                                    'Anémie': 'Anémie',
-                                    'Fibromyalgie ou douleurs chroniques': 'Fibromyalgie/douleurs chroniques'
-                                }
-                            ) : null}
-
-                            {/* Traitements actuels */}
-                            {answers.current_treatments != null ? (
-                                renderSection('Traitements Actuels', {
-                                    traitements: answers.current_treatments as string
-                                })
-                            ) : null}
-
-                            {/* Habitudes de vie */}
-                            {answers.life_habits != null ? renderSection('Habitudes de Vie', answers.life_habits as Record<string, unknown>, {
-                                smoking_status: 'Tabagisme',
-                                smoking_details: 'Détails tabagisme',
-                                alcohol_status: 'Consommation d\'alcool',
-                                alcohol_details: 'Détails consommation alcool'
-                            }) : null}
-
-                            {/* Conduite automobile */}
-                            {answers.driving_info != null ? renderSection('Conduite Automobile', answers.driving_info as Record<string, unknown>, {
-                                has_license: 'Permis de conduire',
-                                license_type: 'Type de permis',
-                                sleepy_while_driving: 'Somnolence au volant',
-                                accident_related_to_sleepiness: 'Accident lié à la somnolence'
-                            }) : null}
-
-                            {/* Commentaires libres */}
-                            {answers.free_comments != null ? (
-                                renderSection('Commentaires Libres', {
-                                    commentaires: answers.free_comments as string
-                                })
-                            ) : null}
-
-                            {/* Consentement */}
-                            {answers.consent_signature != null ? (
-                                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                                    <h4 className="font-semibold text-green-800">Consentement Signé</h4>
-                                    <p className="text-green-700 mt-1">
-                                        Le patient a confirmé avoir lu et compris les informations sur les risques et obligations légales.
-                                    </p>
-                                </div>
-                            ) : null}
-                        </div>
-                    </div>
-                );
-            })}
+                    );
+                })}
+            </div>
         </div>
     );
 }

@@ -4,8 +4,9 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
-import { LayoutDashboard, Users, LogOut, Calendar, CheckSquare, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Users, LogOut, Calendar, CheckSquare, MessageSquare, LinkIcon, Mail, CalendarDays, Sparkles } from 'lucide-react';
 import DoctorHeaderBar from '@/components/doctor/DoctorHeaderBar';
+import { MenuBadge } from '@/components/ui/menu-badge';
 
 export default async function DoctorLayout({
   children,
@@ -58,6 +59,14 @@ export default async function DoctorLayout({
               </Link>
             </li>
             <li>
+              <Link href="/dashboard/doctormodern" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
+                <div className="w-6 h-6 mb-1 flex items-center justify-center">
+                  <Sparkles size={20} />
+                </div>
+                <span className="text-xs opacity-80 group-hover:opacity-100">Workspace</span>
+              </Link>
+            </li>
+            <li>
               <Link href="/dashboard/doctor/agenda" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
                 <div className="w-6 h-6 mb-1 flex items-center justify-center">
                   <Calendar size={20} />
@@ -74,12 +83,14 @@ export default async function DoctorLayout({
               </Link>
             </li>
             <li>
-              <Link href="/dashboard/doctor/messagerie" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
-                <div className="w-6 h-6 mb-1 flex items-center justify-center">
-                  <MessageSquare size={20} />
-                </div>
-                <span className="text-xs opacity-80 group-hover:opacity-100">Messagerie</span>
-              </Link>
+              <MenuBadge>
+                <Link href="/dashboard/doctor/messagerie" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
+                  <div className="w-6 h-6 mb-1 flex items-center justify-center">
+                    <MessageSquare size={20} />
+                  </div>
+                  <span className="text-xs opacity-80 group-hover:opacity-100">Messagerie</span>
+                </Link>
+              </MenuBadge>
             </li>
             <li>
               <Link href="/dashboard/doctor/patients" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
@@ -87,6 +98,30 @@ export default async function DoctorLayout({
                   <Users size={20} />
                 </div>
                 <span className="text-xs opacity-80 group-hover:opacity-100">Patients</span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/dashboard/doctor/invitations" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
+                <div className="w-6 h-6 mb-1 flex items-center justify-center">
+                  <LinkIcon size={20} />
+                </div>
+                <span className="text-xs opacity-80 group-hover:opacity-100">Invitations</span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/dashboard/doctor/email-templates" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
+                <div className="w-6 h-6 mb-1 flex items-center justify-center">
+                  <Mail size={20} />
+                </div>
+                <span className="text-xs opacity-80 group-hover:opacity-100">Emails</span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/dashboard/doctor/appointments" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
+                <div className="w-6 h-6 mb-1 flex items-center justify-center">
+                  <CalendarDays size={20} />
+                </div>
+                <span className="text-xs opacity-80 group-hover:opacity-100">RDV</span>
               </Link>
             </li>
           </ul>

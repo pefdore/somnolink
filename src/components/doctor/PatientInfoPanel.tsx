@@ -157,7 +157,7 @@ const renderMedicalHistory = (medicalHistory: Patient['medical_history']) => {
     return <p>• Aucun antécédent médical renseigné</p>;
   }
 
-  return medicalHistory.entries.slice(0, 3).map((entry, index: number) => (
+  return medicalHistory.entries.map((entry, index: number) => (
     <p key={index}>• {entry.label || 'Antécédent médical'}</p>
   ));
 };
@@ -231,21 +231,37 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
   const handleSelectCim = async (item: { code: string; label: string; system?: string }): Promise<void> => {
     try {
       console.log(`Ajout d'antécédent: ${item.label} (${item.code}) pour ${searchType}`);
-      
+      console.log('🔍 [CLIENT] Patient ID:', patient.id);
+      console.log('🔍 [CLIENT] Patient data:', patient);
+
+      const requestData = {
+        patientId: patient.id,
+        code: item.code,
+        system: item.system || 'CIM-11',
+        label: item.label,
+        type: searchType,
+        note: `Ajouté via recherche CIM`
+      };
+
+      console.log('🔍 [CLIENT] Données envoyées:', requestData);
+
       const response = await fetch('/api/antecedents', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          patientId: patient.id,
-          code: item.code,
-          system: item.system || 'CIM-11',
-          label: item.label,
-          type: searchType,
-          note: `Ajouté via recherche CIM`
-        })
+        body: JSON.stringify(requestData)
       });
+
+      console.log('🔍 [CLIENT] Réponse HTTP:', response.status, response.statusText);
+
+      if (response.status === 409) {
+        // Antécédent déjà existant
+        const errorData = await response.json();
+        console.log('Antécédent déjà existant:', errorData);
+        alert('Cet antécédent existe déjà pour ce patient.');
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('Erreur lors de l\'ajout de l\'antécédent');
@@ -254,8 +270,8 @@ export default function PatientInfoPanel({ patient }: PatientInfoPanelProps) {
       const result = await response.json();
       console.log('Antécédent ajouté avec succès:', result);
 
-      // Recharger les données du patient pour afficher le nouvel antécédent
-      // Vous pourriez vouloir implémenter une mise à jour locale de l'état ici
+      // Recharger la page pour afficher le nouvel antécédent
+      window.location.reload();
 
     } catch (error) {
       console.error('Erreur lors de l\'ajout de l\'antécédent:', error);

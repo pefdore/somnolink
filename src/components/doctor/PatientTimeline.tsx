@@ -1,6 +1,7 @@
 'use client';
 
 import { FileText, ClipboardList, MessageSquare, Calendar, Upload, Pill, User } from 'lucide-react';
+import QuestionnaireSummary from './QuestionnaireSummary';
 
 interface TimelineEvent {
   id: string;
@@ -11,6 +12,12 @@ interface TimelineEvent {
   creator: {
     type: 'patient' | 'doctor';
     name: string;
+  };
+  questionnaire?: {
+    id: string;
+    type: string;
+    submitted_at: string;
+    answers: Record<string, unknown>;
   };
 }
 
@@ -48,6 +55,12 @@ interface PatientTimelineProps {
       id: string;
       medication?: string;
       created_at: string;
+    }>;
+    questionnaires?: Array<{
+      id: string;
+      type: string;
+      submitted_at: string;
+      answers: Record<string, unknown>;
     }>;
   };
 }
@@ -111,7 +124,7 @@ export default function PatientTimeline({ patient }: PatientTimelineProps) {
       });
     }
 
-    // Appointments with questionnaires
+    // Appointments
     if (patient.appointments && patient.appointments.length > 0) {
       patient.appointments?.forEach((appointment) => {
         events.push({
@@ -125,23 +138,32 @@ export default function PatientTimeline({ patient }: PatientTimelineProps) {
             name: 'Médecin'
           }
         });
+      });
+    }
 
-        // Questionnaires from appointments
-        if (appointment.questionnaires && appointment.questionnaires.length > 0) {
-          appointment.questionnaires?.forEach((questionnaire) => {
-            events.push({
-              id: `questionnaire-${questionnaire.id}`,
-              type: 'questionnaire',
-              title: 'Questionnaire patient',
-              description: questionnaire.title || 'Questionnaire rempli',
-              date: new Date(questionnaire.completed_at || appointment.date),
-              creator: {
-                type: 'patient',
-                name: `${patient.first_name} ${patient.last_name}`
-              }
-            });
-          });
-        }
+    // Questionnaires directement depuis la base de données
+    if (patient.questionnaires && patient.questionnaires.length > 0) {
+      patient.questionnaires?.forEach((questionnaire) => {
+        const questionnaireTitles: Record<string, string> = {
+          'PRE_CONSULTATION_SLEEP_FULL': 'Questionnaire Pré-consultation Sommeil',
+          'MORNING_AFTER': 'Questionnaire "Au Réveil"',
+          'PRE_CONSULTATION': 'Questionnaire Pré-consultation'
+        };
+
+        const title = questionnaireTitles[questionnaire.type] || questionnaire.type;
+
+        events.push({
+          id: `questionnaire-${questionnaire.id}`,
+          type: 'questionnaire',
+          title: title,
+          description: 'Questionnaire rempli par le patient',
+          date: new Date(questionnaire.submitted_at),
+          creator: {
+            type: 'patient',
+            name: `${patient.first_name || ''} ${patient.last_name || ''}`.trim() || 'Patient'
+          },
+          questionnaire: questionnaire // Ajouter les données du questionnaire pour le résumé
+        });
       });
     }
 
@@ -199,31 +221,38 @@ export default function PatientTimeline({ patient }: PatientTimelineProps) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h3 className="text-xl font-semibold text-gray-800 border-b pb-4 mb-6">Timeline du Dossier</h3>
-      
+
       <div className="space-y-4">
         {timelineEvents.map((event) => (
           <div key={event.id} className="flex items-start space-x-3 p-4 border rounded-lg bg-white hover:bg-gray-50">
             <div className={`p-2 rounded-full ${getEventColor(event.type)}`}>
               {getEventIcon(event.type)}
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
                 <h4 className="font-medium text-gray-900">{event.title}</h4>
                 <span className="text-xs text-gray-500">
-                  {event.date.toLocaleDateString('fr-FR')} à {event.date.toLocaleTimeString('fr-FR', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+                  {event.date.toLocaleDateString('fr-FR')} à {event.date.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
                   })}
                 </span>
               </div>
-              
+
               {event.description && (
                 <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                   {event.description}
                 </p>
               )}
-              
+
+              {/* Résumé visuel pour les questionnaires */}
+              {event.type === 'questionnaire' && event.questionnaire && (
+                <div className="mb-3">
+                  <QuestionnaireSummary questionnaire={event.questionnaire} compact={true} />
+                </div>
+              )}
+
               <div className="flex items-center text-xs text-gray-500">
                 <User className="w-3 h-3 mr-1" />
                 {event.creator.type === 'patient' ? 'Patient' : 'Médecin'}: {event.creator.name}

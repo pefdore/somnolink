@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Settings, UserPlus, Bell, Search, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface DoctorHeaderBarProps {
   doctor?: {
@@ -29,6 +30,7 @@ export default function DoctorHeaderBar({ doctor }: DoctorHeaderBarProps) {
   const supabase = createClient();
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
+  const { unreadCount } = useNotifications();
 
   const searchPatients = useCallback(async (query: string) => {
     if (!query.trim() || !doctor?.id) {
@@ -39,36 +41,50 @@ export default function DoctorHeaderBar({ doctor }: DoctorHeaderBarProps) {
 
     setIsSearching(true);
     try {
-      const { data, error } = await supabase
+      console.log('[SEARCH_PATIENTS] Recherche pour:', query, 'avec doctor_id:', doctor.id);
+
+      // Étape 1: Récupérer les IDs des patients associés au médecin
+      const { data: relationships, error: relError } = await supabase
+        .from('patient_doctor_relationships')
+        .select('patient_id')
+        .eq('doctor_id', doctor.id)
+        .eq('status', 'active');
+
+      if (relError || !relationships || relationships.length === 0) {
+        console.log('[SEARCH_PATIENTS] Aucun patient associé trouvé');
+        setSearchResults([]);
+        setShowResults(true);
+        setIsSearching(false);
+        return;
+      }
+
+      const patientIds = relationships.map(rel => rel.patient_id);
+      console.log('[SEARCH_PATIENTS] Patient IDs associés:', patientIds);
+
+      // Étape 2: Rechercher parmi ces patients
+      const { data: patients, error: patientError } = await supabase
         .from('patients')
-        .select(`
-          id,
-          first_name,
-          last_name,
-          appointments!inner ( doctor_id )
-        `)
-        .eq('appointments.doctor_id', doctor.id)
+        .select('id, first_name, last_name')
+        .in('id', patientIds)
         .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%`)
         .limit(10);
 
-      if (error) {
-        console.error('Erreur de recherche:', error);
+      console.log('[SEARCH_PATIENTS] Résultat recherche patients:', { patients, error: patientError, count: patients?.length });
+
+      if (patientError) {
+        console.error('Erreur de recherche patients:', patientError);
         setSearchResults([]);
-        setShowResults(true); // Afficher le dropdown même en cas d'erreur
+        setShowResults(true);
       } else {
-        // Extraire les données patients de la réponse, qui peut inclure les rendez-vous
-        const patients = data ? data.map(patient => ({
-          id: patient.id,
-          first_name: patient.first_name,
-          last_name: patient.last_name
-        })) : [];
-        setSearchResults(patients);
-        setShowResults(true); // Toujours afficher le dropdown
+        const results = patients || [];
+        console.log('[SEARCH_PATIENTS] Patients trouvés:', results.length);
+        setSearchResults(results);
+        setShowResults(true);
       }
     } catch (error) {
       console.error('Erreur de recherche:', error);
       setSearchResults([]);
-      setShowResults(true); // Afficher le dropdown même en cas d'erreur
+      setShowResults(true);
     } finally {
       setIsSearching(false);
     }
@@ -186,8 +202,13 @@ export default function DoctorHeaderBar({ doctor }: DoctorHeaderBarProps) {
       {/* Section droite - Notifications et paramètres */}
       <div className="flex items-center space-x-3 pr-6">
         {/* Notifications */}
-        <button className="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Notifications">
+        <button className="p-2 rounded-lg hover:bg-gray-800 transition-colors relative" title="Notifications">
           <Bell className="w-5 h-5 text-gray-300" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </button>
 
         {/* Paramètres */}
