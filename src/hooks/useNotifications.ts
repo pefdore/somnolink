@@ -17,6 +17,7 @@ export function useNotifications() {
   const supabase = createClient();
 
   useEffect(() => {
+    console.log('[useNotifications] useEffect running - setting up notifications');
     fetchNotifications();
     setupRealtimeSubscription();
   }, []);
@@ -56,6 +57,7 @@ export function useNotifications() {
   };
 
   const setupRealtimeSubscription = () => {
+    console.log('[useNotifications] Setting up realtime subscription');
     const channel = supabase
       .channel('notifications-changes')
       .on(
@@ -65,13 +67,15 @@ export function useNotifications() {
           schema: 'public',
           table: 'message_notifications'
         },
-        () => {
+        (payload) => {
+          console.log('[useNotifications] Realtime notification received:', payload);
           fetchNotifications(); // Refresh notifications on any change
         }
       )
       .subscribe();
 
     return () => {
+      console.log('[useNotifications] Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   };

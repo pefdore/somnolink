@@ -833,7 +833,7 @@ export default function PatientDashboardHomePage() {
                                   {antecedent.code} ({antecedent.system})
                                 </span>
                                 <span className="text-xs text-gray-500">
-                                  Dr. {antecedent.doctor.first_name} {antecedent.doctor.last_name}
+                                  Dr. {antecedent.doctor?.first_name || 'Inconnu'} {antecedent.doctor?.last_name || ''}
                                 </span>
                               </div>
                               <h4 className="font-medium text-gray-900 mb-1">

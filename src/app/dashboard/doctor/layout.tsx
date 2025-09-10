@@ -103,25 +103,9 @@ export default async function DoctorLayout({
             <li>
               <Link href="/dashboard/doctor/invitations" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
                 <div className="w-6 h-6 mb-1 flex items-center justify-center">
-                  <LinkIcon size={20} />
+                  <Users size={20} />
                 </div>
-                <span className="text-xs opacity-80 group-hover:opacity-100">Invitations</span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/dashboard/doctor/email-templates" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
-                <div className="w-6 h-6 mb-1 flex items-center justify-center">
-                  <Mail size={20} />
-                </div>
-                <span className="text-xs opacity-80 group-hover:opacity-100">Emails</span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/dashboard/doctor/appointments" className="flex flex-col items-center p-2 rounded hover:bg-gray-700 group">
-                <div className="w-6 h-6 mb-1 flex items-center justify-center">
-                  <CalendarDays size={20} />
-                </div>
-                <span className="text-xs opacity-80 group-hover:opacity-100">RDV</span>
+                <span className="text-xs opacity-80 group-hover:opacity-100">Association</span>
               </Link>
             </li>
           </ul>

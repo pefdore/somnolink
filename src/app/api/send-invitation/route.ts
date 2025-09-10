@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { createInvitationEmailTemplate } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,25 +37,13 @@ export async function POST(request: NextRequest) {
     // Mode production avec Resend
     const resend = new Resend(resendApiKey);
     
+    const html = createInvitationEmailTemplate(doctorName, invitationLink);
+
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'Somnolink <notifications@somnolink.fr>',
       to: to,
       subject: `Invitation à rejoindre ${doctorName} sur Somnolink`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">Invitation de ${doctorName}</h2>
-          <p>Vous avez été invité à rejoindre la plateforme Somnolink par votre médecin.</p>
-          <p>Cliquez sur le lien ci-dessous pour créer votre compte et vous associer à votre médecin :</p>
-          <a href="${invitationLink}" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 6px; margin: 16px 0;">
-            Accepter l'invitation
-          </a>
-          <p>Ou copiez-collez ce lien dans votre navigateur :</p>
-          <p style="word-break: break-all; color: #666; font-size: 14px;">${invitationLink}</p>
-          <p style="color: #666; font-size: 14px; margin-top: 24px;">
-            Si vous n'avez pas demandé cette invitation, vous pouvez ignorer cet email.
-          </p>
-        </div>
-      `,
+      html: html,
     });
 
     if (error) {

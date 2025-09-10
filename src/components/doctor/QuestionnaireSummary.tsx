@@ -140,26 +140,26 @@ export default function QuestionnaireSummary({ questionnaire, compact = false }:
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                     {answers.height && typeof answers.height === 'number' &&
-                     answers.weight && typeof answers.weight === 'number' && (
+                     answers.weight && typeof answers.weight === 'number' ? (
                         <div>
                             <span className="text-gray-600">IMC: </span>
                             <span className="font-medium">
-                                {Math.round(answers.weight / Math.pow(answers.height / 100, 2))}
+                                {Math.round((answers.weight as number) / Math.pow((answers.height as number) / 100, 2))}
                             </span>
                         </div>
-                    )}
-                    {answers.neck_circumference && typeof answers.neck_circumference === 'number' && (
+                    ) : null}
+                    {answers.neck_circumference && typeof answers.neck_circumference === 'number' ? (
                         <div>
                             <span className="text-gray-600">Tour de cou: </span>
-                            <span className="font-medium">{answers.neck_circumference} cm</span>
+                            <span className="font-medium">{answers.neck_circumference as number} cm</span>
                         </div>
-                    )}
-                    {answers.profession && typeof answers.profession === 'string' && (
+                    ) : null}
+                    {answers.profession && typeof answers.profession === 'string' ? (
                         <div className="col-span-2">
                             <span className="text-gray-600">Profession: </span>
-                            <span className="font-medium">{answers.profession}</span>
+                            <span className="font-medium">{answers.profession as string}</span>
                         </div>
-                    )}
+                    ) : null}
                 </div>
             </div>
         </div>

@@ -12,26 +12,21 @@ interface Patient {
 }
 
 export default async function DoctorDashboardPage() {
-  console.log('Debug: Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-  console.log('Debug: Supabase Anon Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
   const supabase = createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  console.log('Debug: User object:', user);
-  console.log('Debug: User ID:', user?.id);
-  console.log('Debug: User role:', user?.user_metadata?.role);
 
   if (!user || user.user_metadata.role !== 'DOCTOR') redirect('/auth/login');
 
-  console.log('Debug: Attempting to fetch doctor with user_id:', user.id);
   const { data: doctor, error: doctorError } = await supabase
     .from('doctors')
     .select('id, first_name, last_name')
     .eq('user_id', user.id)
     .single();
 
-  console.log('Debug: Doctor fetch result:', { doctor, error: doctorError });
+  if (doctorError) {
+    console.error('Erreur lors de la récupération du profil médecin:', doctorError);
+  }
   
   if (!doctor) return <div>Profil médecin introuvable.</div>;
   

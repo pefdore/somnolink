@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Copy, CheckCircle, Loader2, LinkIcon, Mail, Send } from 'lucide-react';
+import { Copy, CheckCircle, Loader2, LinkIcon, Mail, Send, FileText } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DoctorInvitationsPage() {
   const supabase = createClient();
@@ -190,9 +191,9 @@ export default function DoctorInvitationsPage() {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Liens d'invitation</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Association de patients</h1>
           <p className="text-gray-600">
-            Générez et partagez votre lien d'invitation personnel pour vos patients
+            Gérez vos invitations et modèles d'emails pour associer vos patients à votre plateforme
           </p>
         </div>
 
@@ -297,7 +298,7 @@ export default function DoctorInvitationsPage() {
 
         {/* Section d'envoi d'email */}
         {invitationToken && invitationEnabled && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div id="email-invitation-section" className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Envoyer une invitation par email</h2>
             
             <div className="space-y-4">
@@ -332,6 +333,54 @@ export default function DoctorInvitationsPage() {
             </div>
           </div>
         )}
+
+        {/* Section modèles d'emails */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Modèles d'emails</h2>
+          <p className="text-gray-600 mb-4">
+            Utilisez nos modèles d'emails pour informer vos patients de l'importance de se connecter à Somnolink avant leur rendez-vous.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+              <div className="flex items-center mb-3">
+                <FileText className="h-5 w-5 text-blue-600 mr-2" />
+                <h3 className="font-medium text-gray-900">Email de confirmation de rendez-vous</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                Modèle d'email à copier dans votre logiciel d'agenda pour rappeler à vos patients de se connecter à Somnolink.
+              </p>
+              <Link href="/dashboard/doctor/email-templates">
+                <Button variant="outline" size="sm" className="w-full">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Voir les modèles
+                </Button>
+              </Link>
+            </div>
+
+            <div className="border border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors">
+              <div className="flex items-center mb-3">
+                <Mail className="h-5 w-5 text-green-600 mr-2" />
+                <h3 className="font-medium text-gray-900">Email d'invitation directe</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                Envoyez directement une invitation par email avec votre lien personnalisé.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => {
+                  const emailSection = document.getElementById('email-invitation-section');
+                  emailSection?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Aller à l'envoi
+              </Button>
+            </div>
+          </div>
+        </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">

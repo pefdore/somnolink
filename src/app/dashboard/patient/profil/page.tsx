@@ -10,30 +10,36 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import AntecedentsManager from '@/components/patient/AntecedentsManager';
 
 // On définit un type pour le profil patient pour plus de clarté
 type PatientProfile = {
-   first_name: string;
-   last_name: string;
-   phone_number: string;
-   email: string;
-   date_of_birth: string | null;
-   address: string | null;
-   city: string | null;
-   postal_code: string | null;
-   gender: string | null;
-   emergency_contact_name: string | null;
-   emergency_contact_phone: string | null;
-   emergency_contact_relationship: string | null;
-   insurance_provider: string | null;
-   insurance_number: string | null;
-   insurance_expiry_date: string | null;
-   allergies: string | null;
-   current_medications: string | null;
-   medical_conditions: string | null;
-   sleep_schedule: string | null;
-   sleep_quality: string | null;
-   preferred_language: string | null;
+    id?: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    email: string;
+    date_of_birth: string | null;
+    address: string | null;
+    city: string | null;
+    postal_code: string | null;
+    gender: string | null;
+    emergency_contact_name: string | null;
+    emergency_contact_phone: string | null;
+    emergency_contact_relationship: string | null;
+    insurance_provider: string | null;
+    insurance_number: string | null;
+    insurance_expiry_date: string | null;
+    allergies: string | null;
+    current_medications: string | null;
+    medical_conditions: string | null;
+    sleep_schedule: string | null;
+    sleep_quality: string | null;
+    preferred_language: string | null;
+    treating_physician_id?: string | null;
+    social_security_number?: string | null;
+    civility?: string | null;
+    birth_name?: string | null;
 } | null;
 
 export default function ProfilePage() {
@@ -61,6 +67,11 @@ export default function ProfilePage() {
   const [sleepSchedule, setSleepSchedule] = useState('');
   const [sleepQuality, setSleepQuality] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('fr');
+  const [socialSecurityNumber, setSocialSecurityNumber] = useState('');
+  const [civility, setCivility] = useState('');
+  const [birthName, setBirthName] = useState('');
+  const [treatingPhysicianId, setTreatingPhysicianId] = useState('');
+  const [availableDoctors, setAvailableDoctors] = useState<Array<{id: string, first_name: string, last_name: string}>>([]);
 
   // States pour le changement de mot de passe
   const [newPassword, setNewPassword] = useState('');
@@ -106,6 +117,24 @@ export default function ProfilePage() {
     return Object.keys(errors).length === 0;
   };
 
+  // Fonction pour charger la liste des médecins disponibles
+  const loadAvailableDoctors = async () => {
+    try {
+      const { data: doctors, error } = await supabase
+        .from('doctors')
+        .select('id, first_name, last_name')
+        .order('last_name', { ascending: true });
+
+      if (error) {
+        console.error('Erreur chargement médecins:', error);
+      } else {
+        setAvailableDoctors(doctors || []);
+      }
+    } catch (error) {
+      console.error('Erreur réseau chargement médecins:', error);
+    }
+  };
+
   // Au chargement de la page, on récupère les infos de l'utilisateur et son profil
   useEffect(() => {
     const fetchProfile = async () => {
@@ -135,6 +164,9 @@ export default function ProfilePage() {
       setLoading(false);
     };
 
+    // Charger les médecins disponibles
+    loadAvailableDoctors();
+
     const fetchProfileFallback = async (user: any) => {
       try {
         // Essayer d'abord les champs de base qui existent toujours
@@ -154,7 +186,7 @@ export default function ProfilePage() {
         try {
           const { data: extendedResult } = await supabase
             .from('patients')
-            .select('gender, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, insurance_provider, insurance_number, insurance_expiry_date, allergies, current_medications, medical_conditions, sleep_schedule, sleep_quality, preferred_language')
+            .select('gender, social_security_number, civility, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, insurance_provider, insurance_number, insurance_expiry_date, allergies, current_medications, medical_conditions, sleep_schedule, sleep_quality, preferred_language')
             .eq('user_id', user.id)
             .single();
 
@@ -165,7 +197,27 @@ export default function ProfilePage() {
           console.log('Nouveaux champs non disponibles, valeurs par défaut utilisées');
         }
 
-        const profileData = { ...basicData, ...extendedData };
+        const profileData = {
+          ...basicData,
+          ...extendedData,
+          gender: (extendedData as any)?.gender || null,
+          social_security_number: (extendedData as any)?.social_security_number || null,
+          civility: (extendedData as any)?.civility || null,
+          birth_name: (extendedData as any)?.birth_name || null,
+          treating_physician_id: (extendedData as any)?.treating_physician_id || null,
+          emergency_contact_name: (extendedData as any)?.emergency_contact_name || null,
+          emergency_contact_phone: (extendedData as any)?.emergency_contact_phone || null,
+          emergency_contact_relationship: (extendedData as any)?.emergency_contact_relationship || null,
+          insurance_provider: (extendedData as any)?.insurance_provider || null,
+          insurance_number: (extendedData as any)?.insurance_number || null,
+          insurance_expiry_date: (extendedData as any)?.insurance_expiry_date || null,
+          allergies: (extendedData as any)?.allergies || null,
+          current_medications: (extendedData as any)?.current_medications || null,
+          medical_conditions: (extendedData as any)?.medical_conditions || null,
+          sleep_schedule: (extendedData as any)?.sleep_schedule || null,
+          sleep_quality: (extendedData as any)?.sleep_quality || null,
+          preferred_language: (extendedData as any)?.preferred_language || 'fr'
+        };
         setProfile(profileData);
         populateFormFields(profileData);
 
@@ -193,6 +245,10 @@ export default function ProfilePage() {
       setSleepSchedule(data.sleep_schedule || '');
       setSleepQuality(data.sleep_quality || '');
       setPreferredLanguage(data.preferred_language || 'fr');
+      setSocialSecurityNumber(data.social_security_number || '');
+      setCivility(data.civility || '');
+      setBirthName(data.birth_name || data.last_name || '');
+      setTreatingPhysicianId(data.treating_physician_id || 'none');
     };
 
     fetchProfile();
@@ -212,6 +268,33 @@ export default function ProfilePage() {
       return;
     }
 
+    const requestData = {
+      phone_number: phoneNumber,
+      date_of_birth: dateOfBirth || null,
+      address: address || null,
+      city: city || null,
+      postal_code: postalCode || null,
+      gender: gender || null,
+      emergency_contact_name: emergencyContactName || null,
+      emergency_contact_phone: emergencyContactPhone || null,
+      emergency_contact_relationship: emergencyContactRelationship || null,
+      insurance_provider: insuranceProvider || null,
+      insurance_number: insuranceNumber || null,
+      insurance_expiry_date: insuranceExpiryDate || null,
+      allergies: allergies || null,
+      current_medications: currentMedications || null,
+      medical_conditions: medicalConditions || null,
+      sleep_schedule: sleepSchedule || null,
+      sleep_quality: sleepQuality || null,
+      preferred_language: preferredLanguage || 'fr',
+      social_security_number: socialSecurityNumber || null,
+      civility: civility || null,
+      birth_name: birthName || null,
+      treating_physician_id: treatingPhysicianId === 'none' ? null : treatingPhysicianId || null,
+    };
+
+    console.log('📤 [FRONTEND] Sending data to API:', requestData);
+
     try {
       // Essayer d'abord l'API
       const response = await fetch('/api/patient-profile', {
@@ -219,42 +302,27 @@ export default function ProfilePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          phone_number: phoneNumber,
-          date_of_birth: dateOfBirth || null,
-          address: address || null,
-          city: city || null,
-          postal_code: postalCode || null,
-          gender: gender || null,
-          emergency_contact_name: emergencyContactName || null,
-          emergency_contact_phone: emergencyContactPhone || null,
-          emergency_contact_relationship: emergencyContactRelationship || null,
-          insurance_provider: insuranceProvider || null,
-          insurance_number: insuranceNumber || null,
-          insurance_expiry_date: insuranceExpiryDate || null,
-          allergies: allergies || null,
-          current_medications: currentMedications || null,
-          medical_conditions: medicalConditions || null,
-          sleep_schedule: sleepSchedule || null,
-          sleep_quality: sleepQuality || null,
-          preferred_language: preferredLanguage || 'fr',
-        }),
+        body: JSON.stringify(requestData),
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ [FRONTEND] API response success:', data);
         setMessage('Profil mis à jour avec succès !');
         // Recharger les données du profil
         const fetchResponse = await fetch('/api/patient-profile');
         if (fetchResponse.ok) {
           const profileData = await fetchResponse.json();
+          console.log('🔄 [FRONTEND] Reloaded profile data:', profileData.data);
           if (profileData.data) {
             setProfile(profileData.data);
           }
         }
       } else {
+        const errorData = await response.json();
+        console.log('❌ [FRONTEND] API response error:', errorData);
         // Fallback: utiliser Supabase client directement
-        console.log('API non disponible, utilisation du fallback Supabase client');
+        console.log('🔄 [FRONTEND] API non disponible, utilisation du fallback Supabase client');
         await updateProfileFallback();
       }
     } catch (error) {
@@ -277,6 +345,10 @@ export default function ProfilePage() {
       // Essayer de mettre à jour les nouveaux champs (peuvent ne pas exister)
       const extendedUpdateData: any = {};
       if (gender) extendedUpdateData.gender = gender;
+      if (socialSecurityNumber) extendedUpdateData.social_security_number = socialSecurityNumber;
+      if (civility) extendedUpdateData.civility = civility;
+      if (birthName) extendedUpdateData.birth_name = birthName;
+      if (treatingPhysicianId && treatingPhysicianId !== 'none') extendedUpdateData.treating_physician_id = treatingPhysicianId;
       if (emergencyContactName) extendedUpdateData.emergency_contact_name = emergencyContactName;
       if (emergencyContactPhone) extendedUpdateData.emergency_contact_phone = emergencyContactPhone;
       if (emergencyContactRelationship) extendedUpdateData.emergency_contact_relationship = emergencyContactRelationship;
@@ -316,7 +388,7 @@ export default function ProfilePage() {
             try {
               const { data: extendedResult } = await supabase
                 .from('patients')
-                .select('gender, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, insurance_provider, insurance_number, insurance_expiry_date, allergies, current_medications, medical_conditions, sleep_schedule, sleep_quality, preferred_language')
+                .select('gender, social_security_number, civility, emergency_contact_name, emergency_contact_phone, emergency_contact_relationship, insurance_provider, insurance_number, insurance_expiry_date, allergies, current_medications, medical_conditions, sleep_schedule, sleep_quality, preferred_language')
                 .eq('user_id', currentUser.id)
                 .single();
 
@@ -327,7 +399,27 @@ export default function ProfilePage() {
               console.log('Nouveaux champs non disponibles lors du rechargement');
             }
 
-            const profileData = { ...basicData, ...extendedData };
+            const profileData = {
+              ...basicData,
+              ...extendedData,
+              gender: (extendedData as any)?.gender || null,
+              social_security_number: (extendedData as any)?.social_security_number || null,
+              civility: (extendedData as any)?.civility || null,
+              birth_name: (extendedData as any)?.birth_name || null,
+              treating_physician_id: (extendedData as any)?.treating_physician_id || null,
+              emergency_contact_name: (extendedData as any)?.emergency_contact_name || null,
+              emergency_contact_phone: (extendedData as any)?.emergency_contact_phone || null,
+              emergency_contact_relationship: (extendedData as any)?.emergency_contact_relationship || null,
+              insurance_provider: (extendedData as any)?.insurance_provider || null,
+              insurance_number: (extendedData as any)?.insurance_number || null,
+              insurance_expiry_date: (extendedData as any)?.insurance_expiry_date || null,
+              allergies: (extendedData as any)?.allergies || null,
+              current_medications: (extendedData as any)?.current_medications || null,
+              medical_conditions: (extendedData as any)?.medical_conditions || null,
+              sleep_schedule: (extendedData as any)?.sleep_schedule || null,
+              sleep_quality: (extendedData as any)?.sleep_quality || null,
+              preferred_language: (extendedData as any)?.preferred_language || 'fr'
+            };
             setProfile(profileData);
           }
         }
@@ -379,15 +471,71 @@ export default function ProfilePage() {
       <h1 className="text-3xl font-bold mb-8">Mon profil</h1>
       
       <div className="grid gap-8 md:grid-cols-2">
-        {/* Section des informations personnelles */}
+        {/* Section des informations personnelles et administratives */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-2xl font-semibold mb-4">Informations personnelles</h2>
+          <h2 className="text-2xl font-semibold mb-4">Informations personnelles et administratives</h2>
           <p className="text-gray-600 mb-6">
-            Modifiez vos informations de contact et personnelles
+            Informations harmonisées avec votre espace médecin
           </p>
-          
+
           <form onSubmit={handleUpdateProfile} className="space-y-4">
+            {/* Matricule INS et Sexe */}
             <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="socialSecurityNumber">Matricule INS</Label>
+                <Input
+                  id="socialSecurityNumber"
+                  type="text"
+                  value={socialSecurityNumber}
+                  onChange={(e) => setSocialSecurityNumber(e.target.value)}
+                  placeholder="123456789012345"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gender">Genre</Label>
+                <Select value={gender} onValueChange={setGender}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionnez votre genre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Homme</SelectItem>
+                    <SelectItem value="female">Femme</SelectItem>
+                    <SelectItem value="other">Autre</SelectItem>
+                    <SelectItem value="prefer_not_to_say">Préfère ne pas dire</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Civilité */}
+            <div className="space-y-2">
+              <Label htmlFor="civility">Civilité</Label>
+              <Select value={civility} onValueChange={setCivility}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez votre civilité" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="M.">Monsieur</SelectItem>
+                  <SelectItem value="Mme">Madame</SelectItem>
+                  <SelectItem value="Mlle">Mademoiselle</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Noms */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="birthName">Nom de naissance</Label>
+                <Input
+                  id="birthName"
+                  type="text"
+                  value={birthName}
+                  onChange={(e) => setBirthName(e.target.value)}
+                  placeholder="Votre nom de naissance"
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="firstName">Prénom</Label>
                 <Input
@@ -396,102 +544,108 @@ export default function ProfilePage() {
                   disabled
                 />
               </div>
+            </div>
+
+            {/* Nom d'usage (désactivé car c'est le nom principal) */}
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Nom d'usage</Label>
+              <Input
+                id="lastName"
+                value={profile.last_name}
+                disabled
+              />
+            </div>
+
+            {/* Date de naissance et Téléphone */}
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="lastName">Nom</Label>
+                <Label htmlFor="dob">Date de naissance</Label>
                 <Input
-                  id="lastName"
-                  value={profile.last_name}
-                  disabled
+                  id="dob"
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  className={validationErrors.dateOfBirth ? 'border-red-500' : ''}
                 />
+                {validationErrors.dateOfBirth && (
+                  <p className="text-sm text-red-600">{validationErrors.dateOfBirth}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Numéro de téléphone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+33 1 23 45 67 89"
+                  className={validationErrors.phone ? 'border-red-500' : ''}
+                />
+                {validationErrors.phone && (
+                  <p className="text-sm text-red-600">{validationErrors.phone}</p>
+                )}
               </div>
             </div>
 
+            {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={profile.email}
-                disabled
+                readOnly
+                className="bg-gray-50 cursor-not-allowed opacity-75"
               />
+              <p className="text-xs text-gray-500">L'adresse email ne peut pas être modifiée</p>
             </div>
 
+            {/* Médecin traitant */}
             <div className="space-y-2">
-              <Label htmlFor="phone">Numéro de téléphone</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+33 1 23 45 67 89"
-                className={validationErrors.phone ? 'border-red-500' : ''}
-              />
-              {validationErrors.phone && (
-                <p className="text-sm text-red-600">{validationErrors.phone}</p>
-              )}
-            </div>
-
-
-            <div className="space-y-2">
-              <Label htmlFor="dob">Date de naissance</Label>
-              <Input
-                id="dob"
-                type="date"
-                value={dateOfBirth}
-                onChange={(e) => setDateOfBirth(e.target.value)}
-                className={validationErrors.dateOfBirth ? 'border-red-500' : ''}
-              />
-              {validationErrors.dateOfBirth && (
-                <p className="text-sm text-red-600">{validationErrors.dateOfBirth}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="gender">Genre</Label>
-              <Select value={gender} onValueChange={setGender}>
+              <Label htmlFor="treatingPhysician">Médecin traitant</Label>
+              <Select value={treatingPhysicianId} onValueChange={setTreatingPhysicianId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez votre genre" />
+                  <SelectValue placeholder="Sélectionnez votre médecin traitant" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Homme</SelectItem>
-                  <SelectItem value="female">Femme</SelectItem>
-                  <SelectItem value="other">Autre</SelectItem>
-                  <SelectItem value="prefer_not_to_say">Préfère ne pas dire</SelectItem>
+                  <SelectItem value="none">Aucun médecin traitant</SelectItem>
+                  {availableDoctors.map((doctor) => (
+                    <SelectItem key={doctor.id} value={doctor.id}>
+                      Dr. {doctor.first_name} {doctor.last_name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address">Adresse</Label>
-              <Input
-                id="address"
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Votre adresse"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+            {/* Adresse */}
+            <div className="space-y-4">
+              <Label>Adresse</Label>
               <div className="space-y-2">
-                <Label htmlFor="city">Ville</Label>
                 <Input
-                  id="city"
+                  id="address"
                   type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="Ville"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Numéro et rue"
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="postalCode">Code postal</Label>
-                <Input
-                  id="postalCode"
-                  type="text"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                  placeholder="Code postal"
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    id="postalCode"
+                    type="text"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    placeholder="Code postal"
+                  />
+                  <Input
+                    id="city"
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Ville"
+                  />
+                </div>
               </div>
             </div>
 
@@ -506,6 +660,7 @@ export default function ProfilePage() {
             )}
           </form>
         </div>
+
 
         {/* Section des informations médicales */}
         <div className="bg-white p-6 rounded-lg shadow">
@@ -537,14 +692,18 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="conditions">Conditions médicales</Label>
-              <Textarea
-                id="conditions"
-                value={medicalConditions}
-                onChange={(e) => setMedicalConditions(e.target.value)}
-                placeholder="Listez vos conditions médicales (séparées par des virgules)"
-                rows={3}
+            <div className="space-y-4">
+              <Label>Conditions médicales</Label>
+              <AntecedentsManager
+                patientId={profile?.id || ''}
+                onChange={(antecedents) => {
+                  // Synchronisation avec les champs texte existants pour compatibilité
+                  const medicalLabels = antecedents
+                    .filter(a => a.type === 'medical')
+                    .map(a => a.label)
+                    .join(', ');
+                  setMedicalConditions(medicalLabels);
+                }}
               />
             </div>
           </div>

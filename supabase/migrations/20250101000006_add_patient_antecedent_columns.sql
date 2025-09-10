@@ -1,0 +1,12 @@
+-- Migration temporaire - Les colonnes doivent être ajoutées manuellement dans Supabase
+-- ALTER TABLE antecedents ADD COLUMN defined_by VARCHAR(20) DEFAULT 'doctor';
+-- ALTER TABLE antecedents ADD COLUMN validated_by_doctor BOOLEAN DEFAULT false;
+
+-- Instructions pour l'administrateur:
+-- 1. Dans Supabase Dashboard, aller dans Table Editor
+-- 2. Sélectionner la table 'antecedents'
+-- 3. Ajouter la colonne 'defined_by' de type text avec valeur par défaut 'doctor'
+-- 4. Ajouter la colonne 'validated_by_doctor' de type boolean avec valeur par défaut false
+-- 5. Mettre à jour les antécédents existants selon les règles suivantes:
+--    - Si doctor_id IS NOT NULL: defined_by = 'doctor', validated_by_doctor = true
+--    - Si doctor_id IS NULL: defined_by = 'patient', validated_by_doctor = false

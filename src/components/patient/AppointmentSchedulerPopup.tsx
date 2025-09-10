@@ -66,6 +66,7 @@ export default function AppointmentSchedulerPopup({
       };
 
       console.log('🔍 [DEBUG] Envoi de la requête à /api/appointments avec données:', requestData);
+      console.log('🔍 [DEBUG] doctorToken:', doctorToken, 'doctorId:', doctorId);
 
       // Envoyer les données à l'API
       const response = await fetch('/api/appointments', {

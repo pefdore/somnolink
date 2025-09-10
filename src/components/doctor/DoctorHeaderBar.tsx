@@ -41,8 +41,6 @@ export default function DoctorHeaderBar({ doctor }: DoctorHeaderBarProps) {
 
     setIsSearching(true);
     try {
-      console.log('[SEARCH_PATIENTS] Recherche pour:', query, 'avec doctor_id:', doctor.id);
-
       // Étape 1: Récupérer les IDs des patients associés au médecin
       const { data: relationships, error: relError } = await supabase
         .from('patient_doctor_relationships')
@@ -51,7 +49,6 @@ export default function DoctorHeaderBar({ doctor }: DoctorHeaderBarProps) {
         .eq('status', 'active');
 
       if (relError || !relationships || relationships.length === 0) {
-        console.log('[SEARCH_PATIENTS] Aucun patient associé trouvé');
         setSearchResults([]);
         setShowResults(true);
         setIsSearching(false);
@@ -59,7 +56,6 @@ export default function DoctorHeaderBar({ doctor }: DoctorHeaderBarProps) {
       }
 
       const patientIds = relationships.map(rel => rel.patient_id);
-      console.log('[SEARCH_PATIENTS] Patient IDs associés:', patientIds);
 
       // Étape 2: Rechercher parmi ces patients
       const { data: patients, error: patientError } = await supabase
@@ -69,15 +65,12 @@ export default function DoctorHeaderBar({ doctor }: DoctorHeaderBarProps) {
         .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%`)
         .limit(10);
 
-      console.log('[SEARCH_PATIENTS] Résultat recherche patients:', { patients, error: patientError, count: patients?.length });
-
       if (patientError) {
         console.error('Erreur de recherche patients:', patientError);
         setSearchResults([]);
         setShowResults(true);
       } else {
         const results = patients || [];
-        console.log('[SEARCH_PATIENTS] Patients trouvés:', results.length);
         setSearchResults(results);
         setShowResults(true);
       }
@@ -192,6 +185,7 @@ export default function DoctorHeaderBar({ doctor }: DoctorHeaderBarProps) {
 
         {/* Bouton nouveau patient rond */}
         <button
+          onClick={() => router.push('/dashboard/doctor/patients?new=true')}
           className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
           title="Nouveau patient"
         >

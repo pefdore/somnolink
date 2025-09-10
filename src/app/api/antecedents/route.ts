@@ -31,9 +31,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validation du type
-    if (type !== 'medical' && type !== 'surgical') {
+    if (!['medical', 'surgical', 'allergy', 'treatment', 'medication'].includes(type)) {
       return NextResponse.json(
-        { error: 'Le type doit être "medical" ou "surgical"' },
+        { error: 'Le type doit être "medical", "surgical", "allergy", "treatment" ou "medication"' },
         { status: 400 }
       );
     }
@@ -126,7 +126,14 @@ export async function POST(request: NextRequest) {
     console.log('🔍 [ANTECEDENTS API] Mise à jour du champ JSON dans patients...');
 
     // Récupérer les données actuelles du patient
-    const fieldToSelect = type === 'medical' ? 'medical_history' : 'surgical_history';
+    const fieldMapping = {
+      'medical': 'medical_history',
+      'surgical': 'surgical_history',
+      'allergy': 'allergy_history',
+      'treatment': 'treatment_history',
+      'medication': 'medication_history'
+    };
+    const fieldToSelect = fieldMapping[type as keyof typeof fieldMapping] || 'medical_history';
     const { data: patientData, error: patientError } = await supabase
       .from('patients')
       .select(fieldToSelect)

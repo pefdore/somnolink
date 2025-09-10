@@ -1,0 +1,7 @@
+"-- Extension de la table antecedents pour supporter les d‚clarations patient"  
+"ALTER TABLE antecedents ADD COLUMN IF NOT EXISTS defined_by VARCHAR(20) DEFAULT 'doctor' CHECK (defined_by IN ('patient', 'doctor'));" 
+"ALTER TABLE antecedents ADD COLUMN IF NOT EXISTS validated_by_doctor BOOLEAN DEFAULT false;"  
+"ALTER TABLE antecedents ADD COLUMN IF NOT EXISTS patient_note TEXT;"  
+""  
+"-- Rendre doctor_id optionnel pour les d‚clarations patient"  
+"ALTER TABLE antecedents ALTER COLUMN doctor_id DROP NOT NULL;" 

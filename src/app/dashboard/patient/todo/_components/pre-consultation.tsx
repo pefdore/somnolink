@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle } from 'lucide-react';
+import AntecedentsManager from '@/components/patient/AntecedentsManager';
 
 // --- Définition des types ---
 type Doctor = { id: string; first_name: string; last_name: string; };
@@ -292,7 +293,22 @@ export function PreConsultation({ patientId, appointment, isDone }: { patientId:
                 )}
 
                 {currentStep === 3 && (
-                    <fieldset className="space-y-4 p-6 border rounded-lg"><legend className="font-bold px-2 text-xl">Section 6 : Antécédents & Traitements</legend><FormLabel className="font-semibold text-base">Antécédents médicaux</FormLabel><div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">{medicalHistoryList.map(item => (<FormField key={item} control={control} name={`medical_history.${item}`} render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={!!field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">{item}</FormLabel></FormItem>)}/>))}</div><FormField control={control} name="medical_history_other" render={({ field }) => (<FormItem><FormLabel>Autres conditions médicales importantes</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)}/><Separator className="my-6 !mt-8" /><FormField control={control} name="current_treatments" render={({ field }) => (<FormItem><FormLabel className="font-semibold text-base">Traitements actuels</FormLabel><FormDescription>Listez TOUS vos médicaments (ordonnance ou non), suppléments, etc.</FormDescription><FormControl><Textarea placeholder="Ex: Kardegic 75mg, 1 par jour..." {...field} rows={5} /></FormControl></FormItem>)}/></fieldset>
+                    <fieldset className="space-y-4 p-6 border rounded-lg">
+                        <legend className="font-bold px-2 text-xl">Section 6 : Antécédents Médicaux</legend>
+                        <AntecedentsManager
+                            patientId={patientId}
+                            onChange={(antecedents) => {
+                                // Synchronisation avec les champs texte existants pour compatibilité
+                                const medicalLabels = antecedents
+                                    .filter(a => a.type === 'medical')
+                                    .map(a => a.label)
+                                    .join(', ');
+                                form.setValue('medical_history_other', medicalLabels);
+                            }}
+                        />
+                        <Separator className="my-6 !mt-8" />
+                        <FormField control={control} name="current_treatments" render={({ field }) => (<FormItem><FormLabel className="font-semibold text-base">Traitements actuels</FormLabel><FormDescription>Listez TOUS vos médicaments (ordonnance ou non), suppléments, etc.</FormDescription><FormControl><Textarea placeholder="Ex: Kardegic 75mg, 1 par jour..." {...field} rows={5} /></FormControl></FormItem>)}/>
+                    </fieldset>
                 )}
                 
                 {currentStep === 3 && (
