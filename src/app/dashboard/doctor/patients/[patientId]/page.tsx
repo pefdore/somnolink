@@ -74,11 +74,7 @@ export default async function PatientFilePage({ params }: { params: { patientId:
     attending_doctor_first_name: 'Dr.',
     attending_doctor_last_name: 'Inconnu',
     appointments: appointments?.map(apt => ({
-      id: apt.id,
-      date: apt.appointment_datetime,
-      type: apt.type,
-      notes: apt.notes,
-      status: apt.status
+      questionnaires: [] // Only include questionnaires to match interface
     })) || [],
     questionnaires: questionnaires || [],
     notes: [],
