@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AntecedentsManager from '@/components/patient/AntecedentsManager';
+import DoctorAutocomplete from '@/components/shared/DoctorAutocomplete';
 
 // On définit un type pour le profil patient pour plus de clarté
 type PatientProfile = {
@@ -71,7 +72,6 @@ export default function ProfilePage() {
   const [civility, setCivility] = useState('');
   const [birthName, setBirthName] = useState('');
   const [treatingPhysicianId, setTreatingPhysicianId] = useState('');
-  const [availableDoctors, setAvailableDoctors] = useState<Array<{id: string, first_name: string, last_name: string}>>([]);
 
   // States pour le changement de mot de passe
   const [newPassword, setNewPassword] = useState('');
@@ -117,23 +117,6 @@ export default function ProfilePage() {
     return Object.keys(errors).length === 0;
   };
 
-  // Fonction pour charger la liste des médecins disponibles
-  const loadAvailableDoctors = async () => {
-    try {
-      const { data: doctors, error } = await supabase
-        .from('doctors')
-        .select('id, first_name, last_name')
-        .order('last_name', { ascending: true });
-
-      if (error) {
-        console.error('Erreur chargement médecins:', error);
-      } else {
-        setAvailableDoctors(doctors || []);
-      }
-    } catch (error) {
-      console.error('Erreur réseau chargement médecins:', error);
-    }
-  };
 
   // Au chargement de la page, on récupère les infos de l'utilisateur et son profil
   useEffect(() => {
@@ -164,8 +147,6 @@ export default function ProfilePage() {
       setLoading(false);
     };
 
-    // Charger les médecins disponibles
-    loadAvailableDoctors();
 
     const fetchProfileFallback = async (user: any) => {
       try {
@@ -602,22 +583,12 @@ export default function ProfilePage() {
             </div>
 
             {/* Médecin traitant */}
-            <div className="space-y-2">
-              <Label htmlFor="treatingPhysician">Médecin traitant</Label>
-              <Select value={treatingPhysicianId} onValueChange={setTreatingPhysicianId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez votre médecin traitant" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Aucun médecin traitant</SelectItem>
-                  {availableDoctors.map((doctor) => (
-                    <SelectItem key={doctor.id} value={doctor.id}>
-                      Dr. {doctor.first_name} {doctor.last_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <DoctorAutocomplete
+              value={treatingPhysicianId}
+              onChange={setTreatingPhysicianId}
+              placeholder="Rechercher votre médecin traitant..."
+              label="Médecin traitant"
+            />
 
             {/* Adresse */}
             <div className="space-y-4">
