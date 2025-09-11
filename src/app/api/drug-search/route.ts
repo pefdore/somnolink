@@ -92,7 +92,7 @@ async function searchOpenMedicMedications(query: string) {
       status: med.statut || '',
       reimbursement: med.remboursement || false,
       searchScore: calculateSearchScore(query, med.denomination, med.principeActif)
-    })).filter(med => med.name !== 'Nom non disponible');
+    })).filter((med: any) => med.name !== 'Nom non disponible');
 
   } catch (error) {
     console.warn('⚠️ OpenMedic API failed, using mock data:', error);
