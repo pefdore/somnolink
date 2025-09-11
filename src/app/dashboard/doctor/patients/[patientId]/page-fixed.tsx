@@ -82,7 +82,7 @@ export default async function PatientFilePageFixed({ params }: { params: { patie
   }
 
   // 4. Créer l'objet patient complet avec toutes les données
-  const patientWithNotes = {
+  const patientWithNotes: any = {
     ...patient,
     civility: 'M.', // Valeurs par défaut pour les champs manquants
     birth_name: patient.last_name,
@@ -93,6 +93,9 @@ export default async function PatientFilePageFixed({ params }: { params: { patie
     emergency_contact: '',
     attending_doctor_first_name: 'Dr.',
     attending_doctor_last_name: 'Inconnu',
+    gender: 'Non spécifié', // Propriétés manquantes requises
+    city: '',
+    postal_code: '',
     appointments: formattedAppointments,
     notes: notes || [],
     documents: [],
